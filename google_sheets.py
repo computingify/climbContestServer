@@ -1,3 +1,4 @@
+from sqlite3 import DataError
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -27,33 +28,51 @@ def authenticate_google():
 
     return creds
 
-def update_google_sheet(climber_id, bloc_id):
+def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
+    # Should add the bloc name and the climber name into googlesheet
+    climber_row = climber_id + 1
+    bloc_row = bloc_id + 1
+    
     try:
         creds = authenticate_google()
         service = build('sheets', 'v4', credentials=creds)
 
         sheet = service.spreadsheets()
         
-        # Translate the Bloc ID to a column letter (e.g., BLOC45 -> 'B', 'AA', etc.)
-        #bloc_id_number = int(bloc_id.replace('BLOC', ''))  # Extract the number from BLOC45
-        column_letter = number_to_excel_column(bloc_id)
+        # Translate the Bloc ID to a column letter (e.g., 2 = 'B', 27 = 'AA', etc.)
+        column_letter = number_to_excel_column(bloc_row)
         
-        # Construct the range to update in the format "Sheet1!<column><row>"
-        range_to_update = f'{SHEET}!{column_letter}{climber_id}'
-        print(f'bloc_id={bloc_id} column_letter={column_letter} climber_id={climber_id}')
+        # Construct the range to update in the format "{SHEET}!<column><row>"
+        bloc_column_range = f'{SHEET}!{column_letter}1'
+        climber_name_range = f'{SHEET}!A{climber_row}'
+        score_range = f'{SHEET}!{column_letter}{climber_row}'
         
-        body = {
-            'values': [[1]]
-        }
+        # Write bloc ID in the first row
+        sheet.values().update(
+            spreadsheetId=SPREADSHEET_ID,
+            range=bloc_column_range,
+            valueInputOption='RAW',
+            body={'values': [[bloc_name]]}  # Write the Bloc ID
+        ).execute()
+
+        # Write climber name in the first column
+        sheet.values().update(
+            spreadsheetId=SPREADSHEET_ID,
+            range=climber_name_range,
+            valueInputOption='RAW',
+            body={'values': [[climber_name]]}  # Write the climber's name
+        ).execute()
+
+        # Write score (1) in the intersecting cell
         result = sheet.values().update(
             spreadsheetId=SPREADSHEET_ID,
-            range=range_to_update,
+            range=score_range,
             valueInputOption='RAW',
-            body=body
+            body={'values': [[1]]}
         ).execute()
 
         return result
-    except HttpError as error:
+    except DataError as error:
         print(f"An error occurred: {error}")
         return error
 

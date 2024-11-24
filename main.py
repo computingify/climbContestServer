@@ -25,8 +25,10 @@ def register_climber():
     if not mapping:
         mapping = UUIDMapping(uuid=uuid, climber_name=climber_name)
         db.session.add(mapping)
-    else:
+    elif not mapping.climber_name:
         mapping.climber_name = climber_name
+    else:
+        return jsonify({'success': False, 'message': 'wrong UUID'}), 400
 
     db.session.commit()
     
@@ -52,9 +54,11 @@ def register_bloc():
     if not mapping:
         mapping = UUIDMapping(uuid=uuid, bloc_id=bloc_id)
         db.session.add(mapping)
-    else:
+    elif not mapping.bloc_id:
         mapping.bloc_id = bloc_id
-        
+    else:
+        return jsonify({'success': False, 'message': 'wrong UUID'}), 400
+    
     db.session.commit()
     
     try_to_update_google_sheet(mapping)
@@ -66,7 +70,7 @@ def try_to_update_google_sheet(mapping):
         climber = Climber.query.filter_by(name=mapping.climber_name).first()
         bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
         # Update Google Sheet
-        update_google_sheet(climber.id, bloc.id)
+        update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
         
 # Launch the application
 if __name__ == '__main__':
