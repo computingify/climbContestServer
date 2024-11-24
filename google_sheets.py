@@ -71,10 +71,10 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
             body={'values': [[1]]}
         ).execute()
 
-        return result
+        return result, True
     except DataError as error:
         print(f"An error occurred: {error}")
-        return error
+        return error, False
 
 def number_to_excel_column(num):
     """Convert a number to an Excel column letter."""

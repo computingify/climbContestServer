@@ -70,7 +70,17 @@ def try_to_update_google_sheet(mapping):
         climber = Climber.query.filter_by(name=mapping.climber_name).first()
         bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
         # Update Google Sheet
-        update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+        result, state = update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+
+        if state is True:
+            # Remove entries from the database after successful update
+            if climber:
+                db.session.delete(climber)
+            if bloc:
+                db.session.delete(bloc)
+            if mapping:
+                db.session.delete(mapping)
+            db.session.commit()
         
 # Launch the application
 if __name__ == '__main__':
