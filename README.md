@@ -59,3 +59,13 @@ Update your SPREADSHEET_ID:
 SPREADSHEET_ID = '1aBcD_XYZ1234aBcD_XYZ5678'  # Replace with your actual Spreadsheet ID
 
 After that you shoud be able to send the correct information to googlesheet by simulate API request using postman
+
+# HTTPS
+
+for developpement create a self signed certificat:
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+
+Flask itself can serve HTTPS, but it's not suitable for production (use a WSGI server like gunicorn or uWSGI for production). For simplicity, here's how you can use Flask's built-in SSL support.
+Shall do for the production:
+Use gunicorn with HTTPS:
+gunicorn --certfile cert.pem --keyfile key.pem -w 4 -b 0.0.0.0:5007 main:app

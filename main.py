@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from models import db, Climber, Bloc, UUIDMapping
 from google_sheets import update_google_sheet
+import threading
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -32,7 +33,7 @@ def register_climber():
 
     db.session.commit()
     
-    try_to_update_google_sheet(mapping)
+    try_to_update_google_sheet_in_background(mapping)
     
     return jsonify({'success': True, 'message': 'Climber registered successfully'}), 201
 
@@ -61,30 +62,36 @@ def register_bloc():
     
     db.session.commit()
     
-    try_to_update_google_sheet(mapping)
+    try_to_update_google_sheet_in_background(mapping)
     
     return jsonify({'success': True, 'message': 'Bloc registered successfully'}), 201
 
-def try_to_update_google_sheet(mapping):
-    if mapping.bloc_id and mapping.climber_name:
-        climber = Climber.query.filter_by(name=mapping.climber_name).first()
-        bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
-        # Update Google Sheet
-        result, state = update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+def try_to_update_google_sheet_in_background(mapping):
+    thread = threading.Thread(target=try_to_update_google_sheet, args=(mapping.id,))
+    thread.start()
 
-        if state is True:
-            # Remove entries from the database after successful update
-            if climber:
-                db.session.delete(climber)
-            if bloc:
-                db.session.delete(bloc)
-            if mapping:
-                db.session.delete(mapping)
-            db.session.commit()
+def try_to_update_google_sheet(mapping_id):
+    with app.app_context():
+        mapping = db.session.get(UUIDMapping, mapping_id)
+        if mapping and mapping.bloc_id and mapping.climber_name:
+            climber = Climber.query.filter_by(name=mapping.climber_name).first()
+            bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
+            print(f'climber = {climber.name}   Bloc = {bloc.bloc_id}')
+            # Update Google Sheet
+            result, state = update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+
+            if state is True:
+                # Remove entries from the database after successful update
+                if mapping:
+                    db.session.delete(mapping)
+                db.session.commit()
         
 # Launch the application
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    # app.config["DEBUG"] = True
-    app.run(host='0.0.0.0', port=5007)
+        
+    # Path to your SSL certificate and private key
+    ssl_context = ('security/cert.pem', 'security/key.pem')
+    app.config["DEBUG"] = True
+    app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
