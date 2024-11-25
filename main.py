@@ -86,5 +86,5 @@ def try_to_update_google_sheet(mapping):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.config["DEBUG"] = True
+    # app.config["DEBUG"] = True
     app.run(host='0.0.0.0', port=5007)

@@ -3,7 +3,7 @@
 # Define variables
 APP_DIR="/home/pi/climbContestServer"
 SYSTEMD_APP_NAME="climb_constest_server_app"
-APP_PORT="5005"
+APP_PORT="5007"
 REPO_URL="https://github.com/computingify/climbContestServer.git"  # Replace with your Git repository URL
 FLASK_APP="main.py"
 FLASK_ENV="production"
@@ -37,10 +37,6 @@ export FLASK_APP=$FLASK_APP
 export FLASK_ENV=$FLASK_ENV
 export APP_PORT=$APP_PORT
 export ETH_IP=$ETH_IP
-
-# Step 7: Obtain SSL Certificate with Certbot
-echo "Obtaining SSL Certificate with Certbot..."
-sudo certbot --nginx -d http://maisonadrisoph.freeboxos.fr --non-interactive --agree-tos -m adrien.jouve@adn-dev.fr
 
 # Step 9: Create a systemd service file for the Flask app
 echo "Creating a systemd service for the Flask app..."
@@ -87,10 +83,6 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOF
-
-# Start and enable the Certbot renewal timer
-sudo systemctl start certbot-renew.timer
-sudo systemctl enable certbot-renew.timer
 
 # Display final message with app URL
 echo "Deployment completed! Your app should now be accessible at https://$ETH_IP:$APP_PORT"
