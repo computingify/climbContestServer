@@ -3,7 +3,7 @@
 ## Installation
 clone the deploy file:
 <code>
-wget https://raw.githubusercontent.com/computingify/climbBackEnd/develop/deploy_app.sh
+wget https://raw.githubusercontent.com/computingify/climbContestServer/master/deployement/deploy_app.sh
 </code>
 
 enable executable
