@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from models import db, Climber, Bloc, UUIDMapping
+from init_database import populate_levels, populate_climbers
 from google_sheets import update_google_sheet
 import threading
 
@@ -66,6 +67,11 @@ def register_bloc():
     
     return jsonify({'success': True, 'message': 'Bloc registered successfully'}), 201
 
+def sync_data_from_google_sheet():
+    with app.app_context():
+        populate_levels()  # Populate the Level table
+        populate_climbers()  # Populate the Climber table
+
 def try_to_update_google_sheet_in_background(mapping):
     thread = threading.Thread(target=try_to_update_google_sheet, args=(mapping.id,))
     thread.start()
@@ -90,6 +96,8 @@ def try_to_update_google_sheet(mapping_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        
+    sync_data_from_google_sheet()
         
     # Path to your SSL certificate and private key
     ssl_context = ('security/cert.pem', 'security/key.pem')

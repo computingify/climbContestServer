@@ -11,6 +11,7 @@ class Level(db.Model):
 class Climber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
+    club = db.Column(db.String(50))
     level_id = db.Column(db.Integer, db.ForeignKey('level.id'), nullable=False)
     # Relationship with Level
     level = db.relationship('Level', backref=db.backref('climbers', lazy=True))
