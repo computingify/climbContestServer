@@ -78,7 +78,7 @@ def try_to_update_google_sheet(mapping_id):
             bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
             print(f'climber = {climber.name}   Bloc = {bloc.bloc_id}')
             # Update Google Sheet
-            result, state = update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+            result, state = update_google_sheet(climber.id, int(bloc.bloc_id), climber.name, bloc.bloc_id)
 
             if state is True:
                 # Remove entries from the database after successful update

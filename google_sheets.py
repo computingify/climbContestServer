@@ -6,9 +6,12 @@ import pickle
 import os
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-
+# Adrien's sheets
 SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
 SHEET = 'Feuille 1'
+# Etienne's sheets
+# SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M'
+# SHEET = 'Import'
 
 def authenticate_google():
     creds = None
@@ -30,7 +33,7 @@ def authenticate_google():
 
 def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
     # Should add the bloc name and the climber name into googlesheet
-    climber_row = climber_id + 1
+    climber_row = climber_id + 3
     bloc_row = bloc_id + 1
     
     try:
@@ -40,22 +43,22 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
         sheet = service.spreadsheets()
         
         # Translate the Bloc ID to a column letter (e.g., 2 = 'B', 27 = 'AA', etc.)
-        column_letter = number_to_excel_column(bloc_row)
+        column_letter = number_to_excel_column(climber_row)
         
         # Construct the range to update in the format "{SHEET}!<column><row>"
-        bloc_column_range = f'{SHEET}!{column_letter}1'
-        climber_name_range = f'{SHEET}!A{climber_row}'
-        score_range = f'{SHEET}!{column_letter}{climber_row}'
+        climber_name_range = f'{SHEET}!{column_letter}1'
+        bloc_range = f'{SHEET}!A{bloc_row}'
+        score_range = f'{SHEET}!{column_letter}{bloc_row}'
         
-        # Write bloc ID in the first row
+        # Write bloc ID in the first column
         sheet.values().update(
             spreadsheetId=SPREADSHEET_ID,
-            range=bloc_column_range,
+            range=bloc_range,
             valueInputOption='RAW',
             body={'values': [[bloc_name]]}  # Write the Bloc ID
         ).execute()
 
-        # Write climber name in the first column
+        # Write climber name in the first line
         sheet.values().update(
             spreadsheetId=SPREADSHEET_ID,
             range=climber_name_range,
@@ -68,7 +71,7 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
             spreadsheetId=SPREADSHEET_ID,
             range=score_range,
             valueInputOption='RAW',
-            body={'values': [[1]]}
+            body={'values': [['A']]}
         ).execute()
 
         return result, True

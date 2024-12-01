@@ -163,3 +163,5 @@ cython_debug/
 token.pickle
 .DS_Store
 credentials.json
+security/cert.pem
+security/key.pem
