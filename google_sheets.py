@@ -7,11 +7,11 @@ import os
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # Adrien's sheets
-SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
-SHEET = 'Feuille 1'
+# SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
+# SHEET = 'Feuille 1'
 # Etienne's sheets
-# SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M'
-# SHEET = 'Import'
+SPREADSHEET_ID = '1ce-Ub6gJGc2Fi_p0KA6GqePhKvEclzc51sanYShblcU'
+SHEET = 'Import'
 
 def authenticate_google():
     creds = None
