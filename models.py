@@ -29,6 +29,12 @@ class UUIDMapping(db.Model):
     bloc_id = db.Column(db.String(50), db.ForeignKey('bloc.bloc_id'), nullable=True)
 
 # Many-to-Many table for climber and bloc (tracks successful climbs)
+class ClimberBlocsReference(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    climber_id = db.Column(db.Integer, db.ForeignKey('climber.id'), nullable=False)
+    bloc_id = db.Column(db.Integer, db.ForeignKey('bloc.id'), nullable=False)
+
+# Many-to-Many table for climber and bloc (tracks successful climbs)
 class ClimberBlocs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     climber_id = db.Column(db.Integer, db.ForeignKey('climber.id'), nullable=False)

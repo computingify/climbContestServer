@@ -1,5 +1,5 @@
 from google_sheets import get_google_sheet_data
-from models import db, Climber, Level, Bloc, LevelBlocs
+from models import db, Climber, Level, Bloc, LevelBlocs, ClimberBlocsReference
 
 OFFSET_READ = '2'
 
@@ -117,40 +117,31 @@ def populate_level_blocs():
                         print(f'Warning: No matching level name for index {idx_level}. Check your data consistency.')
                 
         db.session.commit()
-            
-        #     bloc_id = bloc_ids[idx][0].strip() if idx < len(bloc_ids) and bloc_ids[idx][0].strip() else None
-        #     if not bloc_id:
-        #         print(f"Skipping empty Bloc ID at row {idx + 29}.")
-        #         continue
-
-        #     # Check for each level column if this bloc is required
-        #     for col_idx, cell_value in enumerate(bloc_row[:len(level_names)]):
-        #         if cell_value == "1":  # If "1", this bloc is associated with the corresponding level
-        #             level_name = level_names[col_idx]
-
-        #             # Ensure the level exists in the database
-        #             level = Level.query.filter_by(circuit=level_name).first()
-        #             if not level:
-        #                 print(f"Level '{level_name}' does not exist. Skipping association for Bloc ID '{bloc_id}'.")
-        #                 continue
-        #             else:
-        #                 print(f'success {level_name}')
-
-        #             # Ensure the bloc exists in the database
-        #             bloc = Bloc.query.filter_by(bloc_id=bloc_id).first()
-        #             if not bloc:
-        #                 bloc = Bloc(bloc_id=bloc_id)
-        #                 db.session.add(bloc)
-        #                 db.session.commit()
-
-        #             # Check if the association already exists
-        #             existing_association = LevelBlocs.query.filter_by(level_id=level.id, bloc_id=bloc.id).first()
-        #             if not existing_association:
-        #                 # Add the level-bloc association
-        #                 level_bloc = LevelBlocs(level_id=level.id, bloc_id=bloc.id)
-        #                 db.session.add(level_bloc)
-        
-        # db.session.commit()
         print("LevelBlocs populated successfully.")
     else:
         print("Failed to fetch data from Google Sheet.")
+
+def populate_climber_blocs():
+    # Query both ID and Level ID of all climbers
+    climbers = Climber.query.with_entities(Climber.id, Climber.level_id).all()
+
+    if not climbers:
+        print(f"Error: Climber data base is empty")
+        return []
+    
+    # Loop through each result
+    for climber_id, level_id in climbers:
+        level_blocs = LevelBlocs.query.filter_by(level_id=level_id).all()
+        
+        # Extract all bloc_ids
+        bloc_ids = [lb.bloc_id for lb in level_blocs]
+        if not bloc_ids:
+            print(f"Error: bloc ID associate to climb: {climber_id} and circuit: {level_id}")
+            return []
+        
+        for bloc_id in bloc_ids:
+            climber_blocs = ClimberBlocsReference(climber_id=climber_id, bloc_id=bloc_id)
+            db.session.add(climber_blocs)
+            
+    db.session.commit()
+    print("ClimberBlocsReference populated successfully.")
