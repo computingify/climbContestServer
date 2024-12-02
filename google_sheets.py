@@ -12,7 +12,6 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # Etienne's sheets
 SPREADSHEET_ID = '1ce-Ub6gJGc2Fi_p0KA6GqePhKvEclzc51sanYShblcU'
 IMPORT = 'Import'
-LIST = 'Listes'
 
 def authenticate_google():
     creds = None
@@ -80,7 +79,7 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
         print(f"An error occurred: {error}")
         return error, False
 
-def get_google_sheet_data(range_):
+def get_google_sheet_data(range_, sheet_name):
     """Retrieve data from a specific range in the Google Sheet."""
     try:
         creds = authenticate_google()
@@ -91,7 +90,7 @@ def get_google_sheet_data(range_):
         # Read data from the specified range
         result = sheet.values().get(
             spreadsheetId=SPREADSHEET_ID,
-            range=f"{LIST}!{range_}"
+            range=f"{sheet_name}!{range_}"
         ).execute()
 
         values = result.get('values', [])

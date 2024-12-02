@@ -5,7 +5,8 @@ db = SQLAlchemy()
 # Level table to store climbing levels
 class Level(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)  # U10, U12, U14, U16
+    name = db.Column(db.String(10), unique=True, nullable=False)  # U10 G, U12 F, U14 F, U16 G
+    circuit = db.Column(db.String(5), nullable=False)
     
 # Climber table to store climber details
 class Climber(db.Model):

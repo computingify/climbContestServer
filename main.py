@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from models import db, Climber, Bloc, UUIDMapping
-from init_database import populate_levels, populate_climbers
+from init_database import populate_levels, populate_climbers, populate_level_blocs
 from google_sheets import update_google_sheet
 import threading
 
@@ -71,6 +71,7 @@ def sync_data_from_google_sheet():
     with app.app_context():
         populate_levels()  # Populate the Level table
         populate_climbers()  # Populate the Climber table
+        populate_level_blocs()
 
 def try_to_update_google_sheet_in_background(mapping):
     thread = threading.Thread(target=try_to_update_google_sheet, args=(mapping.id,))
