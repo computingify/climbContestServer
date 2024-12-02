@@ -6,7 +6,7 @@ db = SQLAlchemy()
 class Level(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(10), unique=True, nullable=False)  # U10 G, U12 F, U14 F, U16 G
-    circuit = db.Column(db.String(5), nullable=False)
+    circuit = db.Column(db.String(5), nullable=False)  # U10, U12, U14, U16
     
 # Climber table to store climber details
 class Climber(db.Model):

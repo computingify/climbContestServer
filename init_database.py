@@ -94,9 +94,29 @@ def populate_level_blocs():
             for idx_level, is_required in enumerate(level_bloc_row):
                 if is_required == '1':  # If this level requires the bloc
                     if idx_level < len(level_names):
-                        print(f'Bloc {bloc_id} is required for level {level_names[idx_level]}')
+                        circuit = level_names[idx_level]
+                        # print(f'Bloc {bloc_id} is required for level {circuit}')
+                        # Ensure the bloc exists in the database
+                        bloc = Bloc.query.filter_by(bloc_id=bloc_id).first()
+                        if not bloc:
+                            bloc = Bloc(bloc_id=bloc_id)
+                            db.session.add(bloc)
+                            # print(f'Write in bloc db = {bloc}')
+                            
+                        # Check if the level is already stored
+                        levels = Level.query.filter_by(circuit=circuit)
+                        for idx, level in enumerate(levels):
+                            # print(f'for circuit: {circuit} level.name = {level.name}')
+                            # Check if the association already exists
+                            existing_association = LevelBlocs.query.filter_by(level_id=level.id, bloc_id=bloc.id).first()
+                            if not existing_association:
+                                # Add the level-bloc association
+                                level_bloc = LevelBlocs(level_id=level.id, bloc_id=bloc.id)
+                                db.session.add(level_bloc)
                     else:
                         print(f'Warning: No matching level name for index {idx_level}. Check your data consistency.')
+                
+        db.session.commit()
             
         #     bloc_id = bloc_ids[idx][0].strip() if idx < len(bloc_ids) and bloc_ids[idx][0].strip() else None
         #     if not bloc_id:
