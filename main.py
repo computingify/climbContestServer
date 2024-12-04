@@ -19,11 +19,16 @@ def register_climber():
         return jsonify({'success': False, 'message': 'Missing data'}), 400
 
     climber = Climber.query.filter_by(name=climber_name).first()
+    print(f'climber = {climber}')
+    if None == climber:
+        return jsonify({'success': False, 'message': 'No registered climber'}), 400
+    
     if not climber:
         climber = Climber(name=climber_name)
         db.session.add(climber)
 
     mapping = UUIDMapping.query.filter_by(uuid=uuid).first()
+    print(f'mapping = {mapping}')
     if not mapping:
         mapping = UUIDMapping(uuid=uuid, climber_name=climber_name)
         db.session.add(mapping)
