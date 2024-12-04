@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from models import db, Climber, Bloc, UUIDMapping
 from google_sheets import update_google_sheet
+from google_sheets_reader import populate_bloc, populate_climbers
 import threading
 
 app = Flask(__name__)
@@ -11,77 +12,89 @@ db.init_app(app)
 @app.route('/api/v1/contest/climber', methods=['POST'])
 def register_climber():
     data = request.get_json()
-    climber_name = data.get('id')
+    climber_id = data.get('id')
     uuid = data.get('uuid')
-
-    if not (climber_name and uuid):
+    
+    if not (climber_id and uuid):
         message = 'Missing data'
         print(message)
         return jsonify({'success': False, 'message': message}), 400
 
-    climber = Climber.query.filter_by(name=climber_name).first()
-    if not climber:
-        climber = Climber(name=climber_name)
-        db.session.add(climber)
+    try:
+        climber = Climber.query.filter_by(bib=climber_id).first()
+        if not climber.bib:
+            message = 'Unregistered climber bib'
+            print(message)
+            return jsonify({'success': False, 'message': message}), 400
+        
+        print(f'climber_id = {climber.name} | uuid = {uuid}')
 
-    mapping = UUIDMapping.query.filter_by(uuid=uuid).first()
-    print(f'mapping: {mapping}')
-    if not mapping:
-        mapping = UUIDMapping(uuid=uuid, climber_name=climber_name)
-        db.session.add(mapping)
-        print("wrote in UUIDMapping")
-    elif not mapping.climber_name:
-        mapping.climber_name = climber_name
-        print('Set the climber name')
-    else:
-        message = 'This climber is already scan'
-        print(message)
-        return jsonify({'success': False, 'message': message}), 400
+        mapping = UUIDMapping.query.filter_by(uuid=uuid).first()
+        if not mapping:
+            mapping = UUIDMapping(uuid=uuid, climber_bib=climber.bib)
+            db.session.add(mapping)
+        else:
+            mapping.climber_bib = climber.bib
 
-    db.session.commit()
+        db.session.commit()
+        
+        try_to_update_google_sheet(mapping)
+        
+        return jsonify({'success': True, 'message': 'Climber registered successfully'}), 201
     
-    try_to_update_google_sheet(mapping)
-    
-    return jsonify({'success': True, 'message': 'Climber registered successfully'}), 201
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
 @app.route('/api/v1/contest/bloc', methods=['POST'])
 def register_bloc():
     data = request.get_json()
     bloc_id = data.get('id')
     uuid = data.get('uuid')
+    
+    print(f'bloc_id = {bloc_id} | uuid = {uuid}')
 
     if not (bloc_id and uuid):
         message = 'Missing data'
         print(message)
         return jsonify({'success': False, 'message': message}), 400
-
-    bloc = Bloc.query.filter_by(bloc_id=bloc_id).first()
-    if not bloc:
-        bloc = Bloc(bloc_id=bloc_id)
-        db.session.add(bloc)
-
-    mapping = UUIDMapping.query.filter_by(uuid=uuid).first()
-    if not mapping:
-        mapping = UUIDMapping(uuid=uuid, bloc_id=bloc_id)
-        db.session.add(mapping)
-    elif not mapping.bloc_id:
-        mapping.bloc_id = bloc_id
-    else:
-        message = 'This bloc is already scanned'
+    
+    bloc = Bloc.query.filter_by(tag=bloc_id).first()
+    if not bloc or not bloc.tag:
+        message = 'Unregistered bloc tag'
         print(message)
         return jsonify({'success': False, 'message': message}), 400
     
+    # try:
+    mapping = UUIDMapping.query.filter_by(uuid=uuid).first()
+    if not mapping:
+        mapping = UUIDMapping(uuid=uuid, bloc_number=bloc.number)
+        db.session.add(mapping)
+    else:
+        mapping.bloc_number = bloc.number
+        
     db.session.commit()
     
     try_to_update_google_sheet(mapping)
     
     return jsonify({'success': True, 'message': 'Bloc registered successfully'}), 201
 
+    # except Exception as e:
+    #     print(f"An error occurred: {e}")
+    #     db.session.rollback()
+    #     return jsonify({'success': False, 'message': 'An error occurred'}), 400
+    
+
 def try_to_update_google_sheet(mapping):
-    if mapping and mapping.bloc_id and mapping.climber_name:
-        climber = Climber.query.filter_by(name=mapping.climber_name).first()
-        bloc = Bloc.query.filter_by(bloc_id=mapping.bloc_id).first()
-        print(f'climber = {climber.name}   Bloc = {bloc.bloc_id}')
+    if mapping and mapping.bloc_number and mapping.climber_bib:
+        climber = Climber.query.filter_by(bib=mapping.climber_bib).first()
+        bloc = Bloc.query.filter_by(number=mapping.bloc_number).first()
+        
+        if not climber or not bloc or not climber.bib or not bloc.number:
+            print('ERROR')
+            
+        print(f'climber = {climber.name}   Bloc = {bloc.tag}')
         
         # Update Google Sheet
         thread = threading.Thread(target=write_google_sheet, args=(climber, bloc, mapping))
@@ -89,7 +102,7 @@ def try_to_update_google_sheet(mapping):
                 
 def write_google_sheet(climber, bloc, mapping):
     # Update Google Sheet
-    result, state = update_google_sheet(climber.id, bloc.id, climber.name, bloc.bloc_id)
+    result, state = update_google_sheet(climber.bib, int(bloc.number), climber.name, bloc.number)
 
     if state is True:
         # Remove entries from the database after successful update
@@ -97,13 +110,19 @@ def write_google_sheet(climber, bloc, mapping):
             if mapping:
                 db.session.delete(mapping)
             db.session.commit()
-
+            
+def sync_data_from_google_sheet():
+    with app.app_context():
+        populate_bloc()
+        populate_climbers()
 
 # Launch the application
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        
+    
+    sync_data_from_google_sheet()
+    
     # Path to your SSL certificate and private key
     ssl_context = ('security/cert.pem', 'security/key.pem')
     app.config["DEBUG"] = True

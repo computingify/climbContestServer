@@ -51,20 +51,20 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
         score_range = f'{IMPORT}!{column_letter}{bloc_row}'
         
         # Write bloc ID in the first column
-        sheet.values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=bloc_range,
-            valueInputOption='RAW',
-            body={'values': [[bloc_name]]}  # Write the Bloc ID
-        ).execute()
+        # sheet.values().update(
+        #     spreadsheetId=SPREADSHEET_ID,
+        #     range=bloc_range,
+        #     valueInputOption='RAW',
+        #     body={'values': [[bloc_name]]}  # Write the Bloc ID
+        # ).execute()
 
         # Write climber name in the first line
-        sheet.values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=climber_name_range,
-            valueInputOption='RAW',
-            body={'values': [[climber_name]]}  # Write the climber's name
-        ).execute()
+        # sheet.values().update(
+        #     spreadsheetId=SPREADSHEET_ID,
+        #     range=climber_name_range,
+        #     valueInputOption='RAW',
+        #     body={'values': [[climber_name]]}  # Write the climber's name
+        # ).execute()
 
         # Write score (A) in the intersecting cell
         result = sheet.values().update(
