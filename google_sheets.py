@@ -7,11 +7,11 @@ import os
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # Adrien's sheets
-SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
-SHEET = 'Feuille 1'
+# SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
+# IMPORT = 'Feuille 1'
 # Etienne's sheets
-# SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M'
-# SHEET = 'Import'
+SPREADSHEET_ID = '1ce-Ub6gJGc2Fi_p0KA6GqePhKvEclzc51sanYShblcU'
+IMPORT = 'Import'
 
 def authenticate_google():
     creds = None
@@ -46,9 +46,9 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
         column_letter = number_to_excel_column(climber_row)
         
         # Construct the range to update in the format "{SHEET}!<column><row>"
-        climber_name_range = f'{SHEET}!{column_letter}1'
-        bloc_range = f'{SHEET}!A{bloc_row}'
-        score_range = f'{SHEET}!{column_letter}{bloc_row}'
+        climber_name_range = f'{IMPORT}!{column_letter}1'
+        bloc_range = f'{IMPORT}!A{bloc_row}'
+        score_range = f'{IMPORT}!{column_letter}{bloc_row}'
         
         # Write bloc ID in the first column
         sheet.values().update(
@@ -66,7 +66,7 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
             body={'values': [[climber_name]]}  # Write the climber's name
         ).execute()
 
-        # Write score (1) in the intersecting cell
+        # Write score (A) in the intersecting cell
         result = sheet.values().update(
             spreadsheetId=SPREADSHEET_ID,
             range=score_range,
@@ -78,6 +78,26 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
     except DataError as error:
         print(f"An error occurred: {error}")
         return error, False
+
+def get_google_sheet_data(range_, sheet_name):
+    """Retrieve data from a specific range in the Google Sheet."""
+    try:
+        creds = authenticate_google()
+        service = build('sheets', 'v4', credentials=creds)
+
+        sheet = service.spreadsheets()
+
+        # Read data from the specified range
+        result = sheet.values().get(
+            spreadsheetId=SPREADSHEET_ID,
+            range=f"{sheet_name}!{range_}"
+        ).execute()
+
+        values = result.get('values', [])
+        return values, True
+    except Exception as error:
+        print(f"An error occurred: {error}")
+        return None, False
 
 def number_to_excel_column(num):
     """Convert a number to an Excel column letter."""
