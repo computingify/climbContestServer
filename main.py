@@ -40,7 +40,11 @@ def register_climber():
         
         try_to_update_google_sheet(mapping)
         
-        return jsonify({'success': True, 'message': 'Climber registered successfully'}), 201
+        return jsonify({
+            'success': True,
+            'message': 'Climber registered successfully',
+            'id': climber.name
+        }), 201
     
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -78,7 +82,11 @@ def register_bloc():
     
     try_to_update_google_sheet(mapping)
     
-    return jsonify({'success': True, 'message': 'Bloc registered successfully'}), 201
+    return jsonify({
+        'success': True,
+        'message': 'Bloc registered successfully',
+        'id': bloc.tag
+        }), 201
 
     # except Exception as e:
     #     print(f"An error occurred: {e}")
@@ -102,7 +110,7 @@ def try_to_update_google_sheet(mapping):
                 
 def write_google_sheet(climber, bloc, mapping):
     # Update Google Sheet
-    result, state = update_google_sheet(climber.bib, int(bloc.number), climber.name, bloc.number)
+    result, state = update_google_sheet(climber.bib, int(bloc.number), climber.bib, bloc.number)
 
     if state is True:
         # Remove entries from the database after successful update
