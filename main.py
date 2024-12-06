@@ -22,10 +22,16 @@ def register_climber():
 
     try:
         climber = Climber.query.filter_by(bib=climber_id).first()
-        if not climber.bib:
-            message = 'Unregistered climber bib'
-            print(message)
-            return jsonify({'success': False, 'message': message}), 400
+        if not climber:
+            print(f'climber_id = {climber_id} not present in DB try to refresh it')
+            # In that case pull the google sheet again to check if it's added in the meantime
+            populate_climbers()
+            
+            climber = Climber.query.filter_by(bib=climber_id).first()
+            if not climber:
+                message = 'Unregistered climber bib'
+                print(message)
+                return jsonify({'success': False, 'message': message}), 400
         
         print(f'climber_id = {climber.name} | uuid = {uuid}')
 
