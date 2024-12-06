@@ -10,7 +10,8 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # SPREADSHEET_ID = '185s4y0PR0vvNY0wCL8cTjSOtFg2V1s3e1FqwtUZynjw'
 # IMPORT = 'Feuille 1'
 # Etienne's sheets
-SPREADSHEET_ID = '1ce-Ub6gJGc2Fi_p0KA6GqePhKvEclzc51sanYShblcU'
+# SPREADSHEET_ID = '1ce-Ub6gJGc2Fi_p0KA6GqePhKvEclzc51sanYShblcU'
+SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M'
 IMPORT = 'Import'
 
 def authenticate_google():
@@ -51,20 +52,20 @@ def update_google_sheet(climber_id, bloc_id, climber_name, bloc_name):
         score_range = f'{IMPORT}!{column_letter}{bloc_row}'
         
         # Write bloc ID in the first column
-        sheet.values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=bloc_range,
-            valueInputOption='RAW',
-            body={'values': [[bloc_name]]}  # Write the Bloc ID
-        ).execute()
+        # sheet.values().update(
+        #     spreadsheetId=SPREADSHEET_ID,
+        #     range=bloc_range,
+        #     valueInputOption='RAW',
+        #     body={'values': [[bloc_name]]}  # Write the Bloc ID
+        # ).execute()
 
         # Write climber name in the first line
-        sheet.values().update(
-            spreadsheetId=SPREADSHEET_ID,
-            range=climber_name_range,
-            valueInputOption='RAW',
-            body={'values': [[climber_name]]}  # Write the climber's name
-        ).execute()
+        # sheet.values().update(
+        #     spreadsheetId=SPREADSHEET_ID,
+        #     range=climber_name_range,
+        #     valueInputOption='RAW',
+        #     body={'values': [[climber_name]]}  # Write the climber's name
+        # ).execute()
 
         # Write score (A) in the intersecting cell
         result = sheet.values().update(

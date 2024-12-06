@@ -4,6 +4,7 @@ from google_sheets import update_google_sheet
 from google_sheets_reader import populate_bloc, populate_climbers
 import threading
 
+    
 def sync_data_from_google_sheet():
     with app.app_context():
         populate_bloc()
@@ -13,7 +14,9 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
-sync_data_from_google_sheet()
+with app.app_context():
+    db.create_all()
+    sync_data_from_google_sheet()
     
 @app.route('/api/v1/contest/climber', methods=['POST'])
 def register_climber():
@@ -104,7 +107,6 @@ def register_bloc():
     #     print(f"An error occurred: {e}")
     #     db.session.rollback()
     #     return jsonify({'success': False, 'message': 'An error occurred'}), 400
-    
 
 def try_to_update_google_sheet(mapping):
     if mapping and mapping.bloc_number and mapping.climber_bib:
@@ -133,6 +135,10 @@ def write_google_sheet(climber, bloc, mapping):
 
 # Launch the application
 if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
+        
+    # sync_data_from_google_sheet()
     
     # Path to your SSL certificate and private key
     ssl_context = ('security/cert.pem', 'security/key.pem')
