@@ -21,8 +21,8 @@ with app.app_context():
     db.create_all()
     sync_data_from_google_sheet()
     
-@app.route('/api/v2/contest/climber/name', methods=['GET'])
-def get_climber_name():
+@app.route('/api/v2/contest/climber/name', methods=['POST'])
+def check_climber():
     data = request.get_json()
     climber_bib = data.get('id')
     
@@ -57,8 +57,8 @@ def get_climber_name():
         db.session.rollback()
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
     
-@app.route('/api/v2/contest/bloc/name', methods=['GET'])
-def get_bloc_tag():
+@app.route('/api/v2/contest/bloc/name', methods=['POST'])
+def check_bloc_tag():
     data = request.get_json()
     bloc_tag = data.get('id')
     
