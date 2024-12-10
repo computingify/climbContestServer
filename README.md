@@ -16,6 +16,19 @@ install
 /home/pi/deployement/deploy_app.sh
 </code>
 
+### Certificates injection
+In case of using headless machine, we need to made the first google sheet connection from a machine with embedded browser to obtain the token.pickle.
+So copy all certificates from another machine to rapsi one:
+From my Mac machine:
+<code>
+scp security/* token.pickle pi@<PI ADDRESS>:~/climbcontestserver/
+</code>
+be sure to have the *.pem files inside security folder
+
+There Are 2 type of certificates:
+- 1 for Android application https protocol
+- 1 to connect to google sheet
+
 ## Update
 From an host machine
 <code>
@@ -69,3 +82,8 @@ Flask itself can serve HTTPS, but it's not suitable for production (use a WSGI s
 Shall do for the production:
 Use gunicorn with HTTPS:
 gunicorn --certfile cert.pem --keyfile key.pem -w 4 -b 0.0.0.0:5007 main:app
+
+# DEBUG
+
+sudo systemctl restart climb_contest_server_app.service
+sudo journalctl -fu climb_contest_server_app.service

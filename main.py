@@ -18,7 +18,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 with app.app_context():
+    # Drop all tables and recreate the database
+    print("Erasing database...")
+    db.drop_all()
     db.create_all()
+    print("Database recreated.")
     sync_data_from_google_sheet()
     
 @app.route('/api/v2/contest/climber/name', methods=['POST'])
@@ -115,7 +119,7 @@ def register_success():
             print(message)
             return jsonify({'success': False, 'message': message}), 400
         
-        print(f'Success climber {climber.name} | {bloc_tag}')
+        print(f'===> Success climber: {climber.name} | {climber.bib} | {bloc_tag}')
 
         update_google_sheet(climber, bloc)
         
@@ -144,4 +148,5 @@ if __name__ == '__main__':
     # Path to your SSL certificate and private key
     ssl_context = ('security/cert.pem', 'security/key.pem')
     app.config["DEBUG"] = True
+    use_reloader=False
     app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
