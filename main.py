@@ -40,7 +40,7 @@ def check_climber():
         if not climber:
             print(f'climber_id = {climber_bib} not present in DB, try to refresh it')
             # In that case pull the google sheet again to check if it's added in the meantime
-            populate_climbers()
+            populate_climbers(google_sheet)
             
             climber = Climber.query.filter_by(bib=climber_bib).first()
             if not climber:
