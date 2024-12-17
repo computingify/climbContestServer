@@ -87,3 +87,7 @@ gunicorn --certfile cert.pem --keyfile key.pem -w 4 -b 0.0.0.0:5007 main:app
 
 sudo systemctl restart climb_contest_server_app.service
 sudo journalctl -fu climb_contest_server_app.service
+
+# Use to deploy on hosted server
+Store the token into base64 to use it on deployment server:
+base64 -i token.pickle | pbcopy

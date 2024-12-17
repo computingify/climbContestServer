@@ -4,6 +4,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import pickle
 import os
+import base64
+from io import BytesIO
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # Adrien's sheets
@@ -26,6 +28,17 @@ class GoogleSheet:
         if os.path.exists('token.pickle'):
             with open('token.pickle', 'rb') as token:
                 creds = pickle.load(token)
+        elif os.path.exists('token.base64'):
+            # Load the Base64-encoded token
+            with open("token.base64", "r") as f:  # The file with the Base64 content
+                base64_data = f.read()
+
+            # Decode the Base64 back to binary
+            binary_data = base64.b64decode(base64_data)
+
+            # Use BytesIO to simulate a file-like object
+            token_stream = BytesIO(binary_data)
+            creds = pickle.load(token_stream)
 
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
