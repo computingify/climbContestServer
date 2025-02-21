@@ -5,7 +5,7 @@ APP_DIR="/home/pi/climbContestServer"
 SYSTEMD_APP_NAME="climb_constest_server_app"
 APP_PORT="5007"
 REPO_URL="https://github.com/computingify/climbContestServer.git"  # Replace with your Git repository URL
-FLASK_APP="main.py"
+FLASK_APP="src/main.py"
 FLASK_ENV="production"
 ETH_IP=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1) # The IP address of the device where we are
 
