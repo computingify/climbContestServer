@@ -91,3 +91,11 @@ sudo journalctl -fu climb_contest_server_app.service
 # Use to deploy on hosted server
 Store the token into base64 to use it on deployment server:
 base64 -i token.pickle | pbcopy
+
+# Unit Test
+
+To run unit test on Model:
+python -m unittest tests/test_models.py -v
+
+Or to run only on specific test:
+python -m unittest tests.test_models.TestModels.test_2_success -v
