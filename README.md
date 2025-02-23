@@ -99,3 +99,11 @@ To be able to use the google sheet, the only way I find is to copy the Etienne's
 ## 2nd possibility (the best one)
 Add adrien.jouve@adn-dev.fr as writer in shared options.
 If it doesn't work, open writer mode to someone have the link.
+
+# Unit Test
+
+To run unit test on Model:
+python -m unittest tests/test_models.py -v
+
+Or to run only on specific test:
+python -m unittest tests.test_models.TestModels.test_2_success -v

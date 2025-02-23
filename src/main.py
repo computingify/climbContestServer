@@ -6,6 +6,7 @@ import threading
 
 
 google_sheet = GoogleSheet()
+handler = DatabaseHandler()
     
 def sync_data_from_google_sheet(app):
     with app.app_context():
@@ -27,7 +28,7 @@ def create_app(config_name=None):
         db.drop_all()
         db.create_all()
         print("Database recreated.")
-        if config_name != 'testing':
+        if not app.config['TESTING']:
             sync_data_from_google_sheet(app)
     return app
 
@@ -45,15 +46,15 @@ def check_climber():
         return jsonify({'success': False, 'message': message}), 400
     
     try:
-        climber = Climber.query.filter_by(bib=climber_bib).first()
-        if not climber:
+        try:
+            climber = handler.get_climber_by_bib(climber_bib)
+        except ValueError as message:
             print(f'climber_id = {climber_bib} not present in DB, try to refresh it')
             # In that case pull the google sheet again to check if it's added in the meantime
             populate_climbers(google_sheet)
-            
-            climber = Climber.query.filter_by(bib=climber_bib).first()
-            if not climber:
-                message = 'Unregistered climber bib'
+            try:
+                climber = handler.get_climber_by_bib(climber_bib)
+            except ValueError as message:
                 print(message)
                 return jsonify({'success': False, 'message': message}), 400
             
@@ -84,9 +85,9 @@ def check_bloc_tag():
     print(f'Check bloc tag = {bloc_tag}')
     
     try:
-        bloc = Bloc.query.filter_by(tag=bloc_tag).first()
-        if not bloc or not bloc.tag:
-            message = 'Unregistered bloc tag'
+        try:
+            bloc = handler.get_bloc_by_tag(bloc_tag)
+        except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
         
@@ -115,24 +116,23 @@ def register_success():
         return jsonify({'success': False, 'message': message}), 400
     
     try:
-        climber = Climber.query.filter_by(bib=climber_bib).first()
-        if not climber or not climber.name:
-            if(not climber):
-                message = f'Climber bib = {climber_bib} not present in DB'
-            else:
-                message = f'Climber bib = {climber_bib} Doesn\'t have setted name'
+        try:
+            climber = handler.get_climber_by_bib(climber_bib)
+        except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
-        
-        bloc = Bloc.query.filter_by(tag=bloc_tag).first()
-        if not bloc or not bloc.tag:
-            message = f'Unregistered bloc tag = {bloc_tag}'
+            
+        try:
+            bloc = handler.get_bloc_by_tag(bloc_tag)
+        except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
         
         print(f'===> Success climber: {climber.name} | {climber.bib} | {bloc_tag}')
 
         update_google_sheet(climber, bloc)
+        
+        handler.add_success(climber, bloc)
         
         return jsonify({
             'success': True,
