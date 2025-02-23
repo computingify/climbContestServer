@@ -9,6 +9,13 @@ class Climber(db.Model):
     bib = db.Column(db.Integer, unique=True, nullable=False)
     club = db.Column(db.String(50))
     category = db.Column(db.String(5))
+    successes = db.relationship('Success', backref='climber', lazy=True)
+
+class Success(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    climber_id = db.Column(db.Integer, db.ForeignKey('climber.id'), nullable=False)
+    bloc_id = db.Column(db.Integer, db.ForeignKey('bloc.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
     
 class Bloc(db.Model):
     id = db.Column(db.Integer, primary_key=True)

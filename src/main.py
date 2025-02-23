@@ -7,24 +7,33 @@ import threading
 
 google_sheet = GoogleSheet()
     
-def sync_data_from_google_sheet():
+def sync_data_from_google_sheet(app):
     with app.app_context():
         populate_bloc(google_sheet)
         populate_climbers(google_sheet)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def create_app(config_name=None):
+    app = Flask(__name__)
+    if config_name == 'testing':
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        app.config['TESTING'] = True
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.init_app(app)
+    with app.app_context():
+        # Drop all tables and recreate the database
+        print("Erasing database...")
+        db.drop_all()
+        db.create_all()
+        print("Database recreated.")
+        if config_name != 'testing':
+            sync_data_from_google_sheet(app)
+    return app
 
-db.init_app(app)
-with app.app_context():
-    # Drop all tables and recreate the database
-    print("Erasing database...")
-    db.drop_all()
-    db.create_all()
-    print("Database recreated.")
-    sync_data_from_google_sheet()
+app = create_app()
     
+# Use to check if the climber bib is already registered in the database
 @app.route('/api/v2/contest/climber/name', methods=['POST'])
 def check_climber():
     data = request.get_json()
@@ -61,6 +70,7 @@ def check_climber():
         db.session.rollback()
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
     
+# Use to check if the bloc tag is already registered in the database
 @app.route('/api/v2/contest/bloc/name', methods=['POST'])
 def check_bloc_tag():
     data = request.get_json()
@@ -92,6 +102,7 @@ def check_bloc_tag():
         print(message)
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
+# Use by application to register a success of a climber on a bloc (the only API that write)
 @app.route('/api/v2/contest/success', methods=['POST'])
 def register_success():
     data = request.get_json()
@@ -166,9 +177,9 @@ def index():
     
 # Launch the application
 if __name__ == '__main__':
-    
     # Path to your SSL certificate and private key
     ssl_context = ('security/cert.pem', 'security/key.pem')
     app.config["DEBUG"] = True
     use_reloader=False
     app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
+    
