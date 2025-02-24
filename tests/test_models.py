@@ -18,11 +18,11 @@ class TestModels(unittest.TestCase):
     def tearDown(self):
         """Unit test cleanup after test method is executed"""
         db.session.remove()
-    #    db.drop_all()
-    #    self.ctx.pop()
-    #    # Supprime le fichier de la base de données de test
-    #    if os.path.exists('test.db'):
-    #        os.remove('test.db')
+        db.drop_all()
+        self.ctx.pop()
+        # Supprime le fichier de la base de données de test
+        if os.path.exists('test.db'):
+            os.remove('test.db')
 
     def test_create_climber(self):
         """Add climber in the database"""

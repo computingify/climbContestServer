@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from src.models import db, Climber, Bloc
 from src.google_sheets import GoogleSheet
 from src.google_sheets_reader import populate_bloc, populate_climbers
-from src.handler import DatabaseHandler
+from database_handler import DatabaseHandler
 import threading
 
 
@@ -119,16 +119,11 @@ def register_success():
     try:
         try:
             climber = handler.get_climber_by_bib(climber_bib)
-        except ValueError as message:
-            print(message)
-            return jsonify({'success': False, 'message': message}), 400
-            
-        try:
             bloc = handler.get_bloc_by_tag(bloc_tag)
         except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
-        
+            
         print(f'===> Success climber: {climber.name} | {climber.bib} | {bloc_tag}')
 
         update_google_sheet(climber, bloc)
