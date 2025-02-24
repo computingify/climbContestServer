@@ -118,16 +118,11 @@ def register_success():
     try:
         try:
             climber = handler.get_climber_by_bib(climber_bib)
-        except ValueError as message:
-            print(message)
-            return jsonify({'success': False, 'message': message}), 400
-            
-        try:
             bloc = handler.get_bloc_by_tag(bloc_tag)
         except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
-        
+            
         print(f'===> Success climber: {climber.name} | {climber.bib} | {bloc_tag}')
 
         update_google_sheet(climber, bloc)
