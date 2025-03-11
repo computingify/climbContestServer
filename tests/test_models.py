@@ -1,24 +1,25 @@
 import unittest
 from datetime import datetime
-from src.models import db, Climber, Bloc, Success
-from src.main import create_app
+from fbapp import create_app, db, models  # Import create_app and models
 import os
 
 class TestModels(unittest.TestCase):
     def setUp(self):
         """Test environnement configuration"""
-        self.app = create_app('testing')
+        self.app = create_app('testing')  # Use the app factory
         self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
         self.app.config['TESTING'] = True
         self.client = self.app.test_client()
         self.ctx = self.app.app_context()
         self.ctx.push()
-        db.create_all()
+        with self.app.app_context():
+            db.create_all()
 
     def tearDown(self):
         """Unit test cleanup after test method is executed"""
         db.session.remove()
-        db.drop_all()
+        with self.app.app_context():
+            db.drop_all()
         self.ctx.pop()
         # Supprime le fichier de la base de données de test
         if os.path.exists('test.db'):
@@ -27,7 +28,7 @@ class TestModels(unittest.TestCase):
     def test_create_climber(self):
         """Add climber in the database"""
         # Création d'un nouveau grimpeur
-        climber = Climber(
+        climber = models.Climber(  # Use models.Climber
             name="John Doe",
             bib=1,
             club="Club A",
@@ -39,7 +40,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
 
         # Récupération du grimpeur depuis la base de données
-        saved_climber = Climber.query.filter_by(name="John Doe").first()
+        saved_climber = models.Climber.query.filter_by(name="John Doe").first()  # Use models.Climber
 
         # Vérifications
         self.assertIsNotNone(saved_climber)
@@ -51,7 +52,7 @@ class TestModels(unittest.TestCase):
     def test_create_bloc(self):
         """Add bloc in the database"""
         # Création d'un nouveau bloc
-        bloc = Bloc(
+        bloc = models.Bloc( # Use models.Bloc
             tag="Bloc A",
             number="001"
         )
@@ -61,7 +62,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
 
         # Récupération du bloc depuis la base de données
-        saved_bloc = Bloc.query.filter_by(tag="Bloc A").first()
+        saved_bloc = models.Bloc.query.filter_by(tag="Bloc A").first() # Use models.Bloc
 
         # Vérifications
         self.assertIsNotNone(saved_bloc)
@@ -70,14 +71,14 @@ class TestModels(unittest.TestCase):
         
     def test_create_success(self):
         """Add success in the database"""
-        climber = Climber(
+        climber = models.Climber( # Use models.Climber
             name="Steve Doe",
             bib=2,
             club="Club B",
             category="U16"
         )
         
-        bloc = Bloc(
+        bloc = models.Bloc( # Use models.Bloc
             tag="Bloc B",
             number="A2"
         )
@@ -86,7 +87,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Création d'un nouveau succès
-        success = Success(
+        success = models.Success( # Use models.Success
             climber_id=1,
             bloc_id=1,
             timestamp=datetime.now()
@@ -97,7 +98,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Récupération du succès depuis la base de données
-        saved_success = Success.query.filter_by(climber_id=1).first()
+        saved_success = models.Success.query.filter_by(climber_id=1).first() # Use models.Success
         
         # Vérifications
         self.assertIsNotNone(saved_success)
@@ -107,18 +108,18 @@ class TestModels(unittest.TestCase):
         
     def test_2_success(self):
         """Add success in the database"""
-        climber = Climber(
+        climber = models.Climber( # Use models.Climber
             name="Steve Doe",
             bib=2,
             club="Club B",
             category="U16"
         )
         
-        bloc1 = Bloc(
+        bloc1 = models.Bloc( # Use models.Bloc
             tag="A1",
             number="1"
         )
-        bloc2 = Bloc(
+        bloc2 = models.Bloc( # Use models.Bloc
             tag="B2",
             number="2"
         )
@@ -127,12 +128,12 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Création d'un nouveau succès
-        success1 = Success(
+        success1 = models.Success( # Use models.Success
             climber_id=1,
             bloc_id=1,
             timestamp=datetime.now()
         )
-        success2 = Success(
+        success2 = models.Success( # Use models.Success
             climber_id=1,
             bloc_id=2,
             timestamp=datetime.now()
@@ -143,7 +144,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Récupération du succès depuis la base de données
-        saved_success = Success.query.filter_by(climber_id=1).all()
+        saved_success = models.Success.query.filter_by(climber_id=1).all() # Use models.Success
         
         # Vérifications
         self.assertIsNotNone(saved_success[0])
@@ -157,18 +158,18 @@ class TestModels(unittest.TestCase):
         
     def test_climber_successes(self):
         """Test a climber succeeding on multiple blocs and retrieving all successes"""
-        climber = Climber(
+        climber = models.Climber( # Use models.Climber
             name="Alice Smith",
             bib=3,
             club="Club C",
             category="U18"
         )
         
-        bloc1 = Bloc(
+        bloc1 = models.Bloc( # Use models.Bloc
             tag="C1",
             number="3"
         )
-        bloc2 = Bloc(
+        bloc2 = models.Bloc( # Use models.Bloc
             tag="D2",
             number="4"
         )
@@ -177,12 +178,12 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Création de nouveaux succès
-        success1 = Success(
+        success1 = models.Success( # Use models.Success
             climber_id=climber.id,
             bloc_id=bloc1.id,
             timestamp=datetime.now()
         )
-        success2 = Success(
+        success2 = models.Success( # Use models.Success
             climber_id=climber.id,
             bloc_id=bloc2.id,
             timestamp=datetime.now()
@@ -193,7 +194,7 @@ class TestModels(unittest.TestCase):
         db.session.commit()
         
         # Récupération des succès depuis la base de données
-        saved_climber = Climber.query.filter_by(name="Alice Smith").first()
+        saved_climber = models.Climber.query.filter_by(name="Alice Smith").first() # Use models.Climber
         saved_successes = saved_climber.successes
         
         # Vérifications

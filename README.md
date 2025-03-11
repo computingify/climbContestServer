@@ -95,7 +95,12 @@ base64 -i token.pickle | pbcopy
 # Unit Test
 
 To run unit test on Model:
-python -m unittest tests/test_models.py -v
+python3 -m unittest tests/test_models.py -v
 
 Or to run only on specific test:
-python -m unittest tests.test_models.TestModels.test_2_success -v
+python3 -m unittest tests.test_models.TestModels.test_2_success -v
+
+# Devlopment
+## Use FLASK console to execute the code:
+FLASK_APP=run.py flask shell
+

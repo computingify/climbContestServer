@@ -1,40 +1,21 @@
 from flask import Flask, request, jsonify
-from src.models import db, Climber, Bloc
+from fbapp import create_app, db, models  # Import create_app, db, and models
 from src.google_sheets import GoogleSheet
 from src.google_sheets_reader import populate_bloc, populate_climbers
-from database_handler import DatabaseHandler
+from src.handler import DatabaseHandler
 import threading
 
 
 google_sheet = GoogleSheet()
 handler = DatabaseHandler()
-    
+
+app = create_app()  # Create the app using the factory
+
 def sync_data_from_google_sheet(app):
     with app.app_context():
         populate_bloc(google_sheet)
         populate_climbers(google_sheet)
 
-def create_app(config_name=None):
-    app = Flask(__name__)
-    if config_name == 'testing':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-        app.config['TESTING'] = True
-    else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
-    with app.app_context():
-        # Drop all tables and recreate the database
-        print("Erasing database...")
-        db.drop_all()
-        db.create_all()
-        print("Database recreated.")
-        if not app.config['TESTING']:
-            sync_data_from_google_sheet(app)
-    return app
-
-app = create_app()
-    
 # Use to check if the climber bib is already registered in the database
 @app.route('/api/v2/contest/climber/name', methods=['POST'])
 def check_climber():
@@ -119,11 +100,16 @@ def register_success():
     try:
         try:
             climber = handler.get_climber_by_bib(climber_bib)
-            bloc = handler.get_bloc_by_tag(bloc_tag)
         except ValueError as message:
             print(message)
             return jsonify({'success': False, 'message': message}), 400
             
+        try:
+            bloc = handler.get_bloc_by_tag(bloc_tag)
+        except ValueError as message:
+            print(message)
+            return jsonify({'success': False, 'message': message}), 400
+        
         print(f'===> Success climber: {climber.name} | {climber.bib} | {bloc_tag}')
 
         update_google_sheet(climber, bloc)
@@ -156,4 +142,3 @@ if __name__ == '__main__':
     app.config["DEBUG"] = True
     use_reloader=False
     app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
-    
