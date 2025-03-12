@@ -1,5 +1,6 @@
 from datetime import datetime
-from climb_contest.models import db, Climber, Bloc, Success
+from climb_contest.extensions import db
+from climb_contest.models import Climber, Bloc, Success
 
 def test_create_climber(app):
     """Add climber in the database"""

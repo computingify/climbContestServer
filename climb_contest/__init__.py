@@ -1,8 +1,6 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from .config import Config
-
-db = SQLAlchemy()
+from .extensions import db
         
 def create_app(config_name=None, google_sheet=None):
     app = Flask(__name__)
@@ -10,7 +8,6 @@ def create_app(config_name=None, google_sheet=None):
 
     if config_name == 'testing':
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-        app.config['TESTING'] = True
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 

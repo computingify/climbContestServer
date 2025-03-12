@@ -1,4 +1,4 @@
-from climb_contest import db
+from .extensions import db
 from climb_contest.models import Climber, Bloc, Success
 from datetime import datetime
 
