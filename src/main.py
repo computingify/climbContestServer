@@ -1,39 +1,17 @@
 from flask import Flask, request, jsonify, render_template
-from models import db, Climber, Bloc
-from google_sheets import GoogleSheet
-from google_sheets_reader import populate_bloc, populate_climbers
+from src import create_app, db  # Import create_app and db from src
+from src.models import Climber, Bloc, Success
+from src.google_sheets import GoogleSheet
+from src.google_sheets_reader import populate_climbers
+from src.database_handler import DatabaseHandler
 import threading
 
 
 google_sheet = GoogleSheet()
 handler = DatabaseHandler()
-    
-def sync_data_from_google_sheet(app):
-    with app.app_context():
-        populate_bloc(google_sheet)
-        populate_climbers(google_sheet)
 
-def create_app(config_name=None):
-    app = Flask(__name__)
-    if config_name == 'testing':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-        app.config['TESTING'] = True
-    else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)
-    with app.app_context():
-        # Drop all tables and recreate the database
-        print("Erasing database...")
-        db.drop_all()
-        db.create_all()
-        print("Database recreated.")
-        if not app.config['TESTING']:
-            sync_data_from_google_sheet(app)
-    return app
+app = create_app(google_sheet = google_sheet)  # Create the app using the factory
 
-app = create_app()
-    
 # Use to check if the climber bib is already registered in the database
 @app.route('/api/v2/contest/climber/name', methods=['POST'])
 def check_climber():
@@ -51,7 +29,7 @@ def check_climber():
         except ValueError as message:
             print(f'climber_id = {climber_bib} not present in DB, try to refresh it')
             # In that case pull the google sheet again to check if it's added in the meantime
-            populate_climbers(google_sheet)
+            populate_climbers(google_sheet, db)
             try:
                 climber = handler.get_climber_by_bib(climber_bib)
             except ValueError as message:
@@ -177,4 +155,4 @@ if __name__ == '__main__':
     app.config["DEBUG"] = True
     use_reloader=False
     app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
-    
+

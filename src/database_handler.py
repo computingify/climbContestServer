@@ -1,4 +1,5 @@
-from src.models import db, Climber, Bloc, Success
+from src import db
+from src.models import Climber, Bloc, Success
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
@@ -13,10 +14,10 @@ class DatabaseHandler:
                     bloc_id=bloc.id,
                     timestamp=datetime.now(),
                 )
-                self.db.session.add(success)
-                self.db.session.commit()
+                db.session.add(success)
+                db.session.commit()
             except Exception as e:
-                self.db.session.rollback()
+                db.session.rollback()
                 print(f"Failed to record success: {e}")
         
     def is_bloc_tag_exist(self, bloc_tag):
@@ -53,4 +54,3 @@ class DatabaseHandler:
             else:
                 raise ValueError(f"Climber bib = {climber_bib} Doesn\'t have setted name")
         return climber
-    

@@ -1,7 +1,7 @@
 from src.google_sheets import GoogleSheet
-from src.models import db, Climber, Bloc
+from src.models import Climber, Bloc
 
-def populate_bloc(google_sheet):
+def populate_bloc(google_sheet, db):
     sheet_name = 'Plan'
     plan_lines_range = "D29:Y"  # get all google sheet Plan line, in each line we have: zone letter | bloc number in this zone | difficulty color | bloc color | is for Cat 1 | empty | is for Cat 2 .... | bloc id
 
@@ -39,7 +39,7 @@ def populate_bloc(google_sheet):
     else:
         print("Failed to fetch data from Google Sheet.")
         
-def populate_climbers(google_sheet):
+def populate_climbers(google_sheet, db):
     OFFSET_READ = '2'
     sheet_name = 'Listes'
     lines_range = f'F{OFFSET_READ}:K'

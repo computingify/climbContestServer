@@ -51,10 +51,10 @@ Group=www-data
 WorkingDirectory=$APP_DIR
 Environment="PATH=$APP_DIR/venv/bin"
 ExecStart=$APP_DIR/venv/bin/gunicorn -w 6 -b 0.0.0.0:$APP_PORT \
-  -c $APP_DIR/gunicorn_config.py \
+  -c $APP_DIR/src/gunicorn_config.py \
   --certfile=security/cert.pem \
   --keyfile=security/key.pem \
-  main:app \
+  src.main:app \
   --capture-output \
   --enable-stdio-inheritance \
   --access-logfile - \
