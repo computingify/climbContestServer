@@ -1,5 +1,5 @@
-from src import db
-from src.models import Climber, Bloc, Success
+from climb_contest import db
+from climb_contest.models import Climber, Bloc, Success
 from datetime import datetime
 
 """Database handler: used to handle database operations"""

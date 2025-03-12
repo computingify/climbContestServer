@@ -1,6 +1,6 @@
 # Usefull file to initialized the database in case of the app executed by gunicorn (becausse it does not use the if __main__)
-from src import create_app, db
-from src.google_sheets import GoogleSheet
+from climb_contest import create_app, db
+from climb_contest.google_sheets import GoogleSheet
 
 def on_starting(server):
     app = create_app()  # Create the app
