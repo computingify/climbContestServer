@@ -1,4 +1,4 @@
-from climb_contest import db
+from .extensions import db
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship, declarative_base
 
