@@ -7,7 +7,7 @@ def create_app(config_name=None, google_sheet=None):
     app.config.from_object(Config)
 
     if config_name == 'testing':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
@@ -22,5 +22,3 @@ def create_app(config_name=None, google_sheet=None):
             populate_climbers(google_sheet, db)
     
     return app
-
-from . import models  # Import models after app and db are initialized
