@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 ### Launch server side:
 <code>
-flask --app main.py --debug run
+flask --app src/main.py --debug run
 </code>
 
 ### Manually modify database
