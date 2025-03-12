@@ -10,10 +10,14 @@ import threading
 google_sheet = GoogleSheet()
 handler = DatabaseHandler()
 
-app = create_app(google_sheet = google_sheet)  # Create the app using the factory
+main = create_app(google_sheet = google_sheet)  # Create the app using the factory
+
+@main.route('/', methods=['GET'])
+def simple():
+    return 'Hello from the other side'
 
 # Use to check if the climber bib is already registered in the database
-@app.route('/api/v2/contest/climber/name', methods=['POST'])
+@main.route('/api/v2/contest/climber/name', methods=['POST'])
 def check_climber():
     data = request.get_json()
     climber_bib = data.get('id')
@@ -50,7 +54,7 @@ def check_climber():
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
     
 # Use to check if the bloc tag is already registered in the database
-@app.route('/api/v2/contest/bloc/name', methods=['POST'])
+@main.route('/api/v2/contest/bloc/name', methods=['POST'])
 def check_bloc_tag():
     data = request.get_json()
     bloc_tag = data.get('id')
@@ -82,7 +86,7 @@ def check_bloc_tag():
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
 # Use by application to register a success of a climber on a bloc (the only API that write)
-@app.route('/api/v2/contest/success', methods=['POST'])
+@main.route('/api/v2/contest/success', methods=['POST'])
 def register_success():
     data = request.get_json()
     climber_bib = data.get('bib')
@@ -125,12 +129,3 @@ def update_google_sheet(climber, bloc):
     # Update Google Sheet
     thread = threading.Thread(target=google_sheet.update_google_sheet, args=(climber.bib, int(bloc.number), climber.bib, bloc.number))
     thread.start()
-
-# Launch the application
-if __name__ == '__main__':
-    # Path to your SSL certificate and private key
-    ssl_context = ('security/cert.pem', 'security/key.pem')
-    app.config["DEBUG"] = True
-    use_reloader=False
-    app.run(host='0.0.0.0', port=5007, ssl_context=ssl_context)
-
