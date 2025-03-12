@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 ### Launch server side:
 <code>
-flask --app src/main.py --debug run
+flask --app climb_contest/routes.py --debug run
 </code>
 
 ### Manually modify database
@@ -81,7 +81,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -node
 Flask itself can serve HTTPS, but it's not suitable for production (use a WSGI server like gunicorn or uWSGI for production). For simplicity, here's how you can use Flask's built-in SSL support.
 Shall do for the production:
 Use gunicorn with HTTPS:
-gunicorn --certfile cert.pem --keyfile key.pem -w 4 -b 0.0.0.0:5007 main:app
+gunicorn --certfile cert.pem --keyfile key.pem -w 4 -b 0.0.0.0:5007 routes:app
 
 # DEBUG
 
@@ -102,8 +102,14 @@ If it doesn't work, open writer mode to someone have the link.
 
 # Unit Test
 
-To run unit test on Model:
-python -m unittest tests/test_models.py -v
+Only for unit test you need to install pytest to the virtual env
+```
+pip install pytest
+```
 
-Or to run only on specific test:
-python -m unittest tests.test_models.TestModels.test_2_success -v
+To run unit test:
+In CLI go to the project root
+```
+pytest .
+```
+Pytest will discover all the tests automatically and execute it

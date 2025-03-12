@@ -5,7 +5,7 @@ APP_DIR="/home/pi/climbContestServer"
 SYSTEMD_APP_NAME="climb_constest_server_app"
 APP_PORT="5007"
 REPO_URL="https://github.com/computingify/climbContestServer.git"  # Replace with your Git repository URL
-FLASK_APP="src/main.py"
+FLASK_APP="climb_contest/routes.py"
 FLASK_ENV="production"
 ETH_IP=$(ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1) # The IP address of the device where we are
 
@@ -51,10 +51,10 @@ Group=www-data
 WorkingDirectory=$APP_DIR
 Environment="PATH=$APP_DIR/venv/bin"
 ExecStart=$APP_DIR/venv/bin/gunicorn -w 6 -b 0.0.0.0:$APP_PORT \
-  -c $APP_DIR/src/gunicorn_config.py \
+  -c $APP_DIR/climb_contest/gunicorn_config.py \
   --certfile=security/cert.pem \
   --keyfile=security/key.pem \
-  src.main:app \
+  climb_contest.routes:app \
   --capture-output \
   --enable-stdio-inheritance \
   --access-logfile - \

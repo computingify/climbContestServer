@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template
-from src import create_app, db  # Import create_app and db from src
-from src.models import Climber, Bloc, Success
-from src.google_sheets import GoogleSheet
-from src.google_sheets_reader import populate_climbers
-from src.database_handler import DatabaseHandler
+from climb_contest import create_app, db
+from climb_contest.models import Climber, Bloc, Success
+from climb_contest.google_sheets import GoogleSheet
+from climb_contest.google_sheets_reader import populate_climbers
+from climb_contest.database_handler import DatabaseHandler
 import threading
 
 

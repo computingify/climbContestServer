@@ -1,5 +1,5 @@
-from src.google_sheets import GoogleSheet
-from src.models import Climber, Bloc
+from climb_contest.google_sheets import GoogleSheet
+from climb_contest.models import Climber, Bloc
 
 def populate_bloc(google_sheet, db):
     sheet_name = 'Plan'
