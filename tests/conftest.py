@@ -5,9 +5,6 @@ from climb_contest.models import Climber, Bloc, Success
 @pytest.fixture()
 def app():
     app = create_app(config_name='testing')
-    app.config.update({
-        "TESTING": True,
-    })
 
     # Initialize the test database
     with app.app_context():

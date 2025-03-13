@@ -1,16 +1,11 @@
-from flask import Flask, request, jsonify, render_template
-from climb_contest import create_app, db
-from climb_contest.models import Climber, Bloc, Success
-from climb_contest.google_sheets import GoogleSheet
+from flask import Flask, request, jsonify, Blueprint, render_template
+from climb_contest import db
+from climb_contest.google_sheets import google_sheet
+from climb_contest.database_handler import handler
 from climb_contest.google_sheets_reader import populate_climbers
-from climb_contest.database_handler import DatabaseHandler
 import threading
 
-
-google_sheet = GoogleSheet()
-handler = DatabaseHandler()
-
-main = create_app(google_sheet = google_sheet)  # Create the app using the factory
+main = Blueprint("main", __name__)  # Create a Blueprint named main
 
 # Use to check if the climber bib is already registered in the database
 @main.route('/api/v2/contest/climber/name', methods=['POST'])

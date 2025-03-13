@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 ### Launch server side:
 <code>
-flask --app climb_contest/routes.py --debug run
+flask --app climb_contest/__init____.py --debug run
 </code>
 
 ### Manually modify database
@@ -110,6 +110,13 @@ pip install pytest
 To run unit test:
 In CLI go to the project root
 ```
-pytest .
+pytest -sv
 ```
-Pytest will discover all the tests automatically and execute it
+Pytest will discover all the tests automatically and execute it.
+-v for the test verbose
+-s to show source code print call in command line interface
+
+To run unit test only on a part of test
+```
+pytest tests/test_routes.py::test_check_climber -sv
+```

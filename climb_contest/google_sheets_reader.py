@@ -1,4 +1,3 @@
-from climb_contest.google_sheets import GoogleSheet
 from climb_contest.models import Climber, Bloc
 
 def populate_bloc(google_sheet, db):

@@ -54,3 +54,5 @@ class DatabaseHandler:
             else:
                 raise ValueError(f"Climber bib = {climber_bib} Doesn\'t have setted name")
         return climber
+
+handler = DatabaseHandler()
