@@ -115,3 +115,5 @@ class GoogleSheet:
             column = chr(num % 26 + 65) + column
             num //= 26
         return column
+    
+google_sheet = GoogleSheet()

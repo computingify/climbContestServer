@@ -54,7 +54,7 @@ ExecStart=$APP_DIR/venv/bin/gunicorn -w 6 -b 0.0.0.0:$APP_PORT \
   -c $APP_DIR/climb_contest/gunicorn_config.py \
   --certfile=security/cert.pem \
   --keyfile=security/key.pem \
-  climb_contest.routes:app \
+  climb_contest.__init__:app \
   --capture-output \
   --enable-stdio-inheritance \
   --access-logfile - \

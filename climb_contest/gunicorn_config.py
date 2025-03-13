@@ -6,8 +6,7 @@ def on_starting(server):
     app = create_app()  # Create the app
     with app.app_context():
         print("Database Creation and populating...")
-        google_sheet = GoogleSheet()  # Instantiate GoogleSheet
         # Create the app with google_sheet to initialize the database
-        app = create_app(google_sheet=google_sheet)
+        app = create_app()
         with app.app_context():
             db.create_all()
