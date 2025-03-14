@@ -8,6 +8,9 @@ import threading
 main = Blueprint("main", __name__)  # Create a Blueprint named main
 
 # Use to check if the climber bib is already registered in the database
+# {
+#     "id": "11"
+# }
 @main.route('/api/v2/contest/climber/name', methods=['POST'])
 def check_climber():
     data = request.get_json()
@@ -45,6 +48,9 @@ def check_climber():
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
     
 # Use to check if the bloc tag is already registered in the database
+# {
+#     "id": "Z1"
+# }
 @main.route('/api/v2/contest/bloc/name', methods=['POST'])
 def check_bloc_tag():
     data = request.get_json()
@@ -76,7 +82,38 @@ def check_bloc_tag():
         print(message)
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
+# Use to check if a climber can do a bloc
+# {
+#     "bib": "11",
+#     "bloc": "Z1"
+# }
+@main.route('/api/v2/contest/climber/bloc', methods=['POST'])
+def check_climber_bloc():
+    data = request.get_json()
+    climber_bib = data.get('bib')
+    bloc_tag = data.get('bloc')
+    
+    if not (climber_bib and bloc_tag):
+        message = 'Missing data'
+        print(message)
+        return jsonify({'success': False, 'message': message}), 400
+    
+    print(f'Check climber bib = {climber_bib} for bloc tag = {bloc_tag}')
+    
+    is_ok = handler.is_bloc_for_this_climber(climber_bib, bloc_tag)
+    
+    print(f'is_ok = {is_ok}')
+            
+    return jsonify({
+        'success': True if is_ok else False,
+        'message': f'The bloc {bloc_tag} is for the climber ‘{climber_bib}’' if is_ok else f'The bloc {bloc_tag} is not for the climber ‘{climber_bib}’'
+    }), 201 if is_ok else 400
+
 # Use by application to register a success of a climber on a bloc (the only API that write)
+# {
+#     "bib": "11",
+#     "bloc": "Z1"
+# }
 @main.route('/api/v2/contest/success', methods=['POST'])
 def register_success():
     data = request.get_json()

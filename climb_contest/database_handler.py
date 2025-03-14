@@ -1,5 +1,5 @@
 from .extensions import db
-from climb_contest.models import Climber, Bloc, Success
+from climb_contest.models import Climber, Bloc, Success, climber_category_bloc
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
@@ -54,5 +54,16 @@ class DatabaseHandler:
             else:
                 raise ValueError(f"Climber bib = {climber_bib} Doesn\'t have setted name")
         return climber
+    
+    def is_bloc_for_this_climber(self, climber_bib, bloc_tag):
+        """Check if a climber bib should do a bloc based on climber category"""
+        try:
+            climber = self.get_climber_by_bib(climber_bib)
+            bloc = self.get_bloc_by_tag(bloc_tag)
+            return climber in bloc.categories
+            
+        except ValueError as message:
+            print(message)
+            return False
 
 handler = DatabaseHandler()
