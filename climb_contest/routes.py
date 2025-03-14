@@ -125,6 +125,12 @@ def register_success():
         print(message)
         return jsonify({'success': False, 'message': message}), 400
     
+    ok = handler.is_bloc_for_this_climber(climber_bib, bloc_tag)
+    if not ok:
+        message = f'The bloc {bloc_tag} is not for the climber ‘{climber_bib}’'
+        print(message)
+        return jsonify({'success': False, 'message': message}), 400
+    
     try:
         try:
             climber = handler.get_climber_by_bib(climber_bib)
