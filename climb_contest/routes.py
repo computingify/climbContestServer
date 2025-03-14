@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint
 from climb_contest import db
 from climb_contest.google_sheets import google_sheet
 from climb_contest.database_handler import handler
@@ -122,6 +122,12 @@ def register_success():
     
     if not (climber_bib and bloc_tag):
         message = 'Missing data'
+        print(message)
+        return jsonify({'success': False, 'message': message}), 400
+    
+    ok = handler.is_bloc_for_this_climber(climber_bib, bloc_tag)
+    if not ok:
+        message = f'The bloc {bloc_tag} is not for the climber ‘{climber_bib}’'
         print(message)
         return jsonify({'success': False, 'message': message}), 400
     

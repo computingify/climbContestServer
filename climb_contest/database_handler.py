@@ -1,5 +1,5 @@
 from .extensions import db
-from climb_contest.models import Climber, Bloc, Success, climber_category_bloc
+from climb_contest.models import Climber, Bloc, Success
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
