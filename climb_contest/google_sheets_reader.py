@@ -40,12 +40,11 @@ def populate_bloc(google_sheet, db):
                     # Handle climber_category_bloc association table creation
                     for idx in range(5, 16):
                         is_associated_to_category = line[idx]
-                        print(f'is_associated_to_category = {is_associated_to_category}')
                         if is_associated_to_category:
                             category = categories[idx]
                             if category:
-                                print(f'category = {category}, bloc_id = {bloc.id}')
-                                db.session.execute(climber_category_bloc.insert().values(category=category, bloc_id=bloc.id))
+                                db.session.execute(climber_category_bloc.insert().values(category=category + " F", bloc_id=bloc.id))
+                                db.session.execute(climber_category_bloc.insert().values(category=category + " H", bloc_id=bloc.id))
                 else:
                     print(f'Error in googleSheet extraction data of qr_code = {qr_code} | bloc_id = {bloc_id}')
                 
