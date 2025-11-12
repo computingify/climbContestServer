@@ -3,7 +3,7 @@ from models import db, Climber, Bloc
 
 def populate_bloc(google_sheet):
     sheet_name = 'Plan'
-    plan_lines_range = "D29:T"  # get all google sheet Plan line, in each line we have: zone letter | bloc number in this zone | difficulty color | bloc color | is for Cat 1 | empty | is for Cat 2 .... | bloc id
+    plan_lines_range = "D29:Y"  # get all google sheet Plan line, in each line we have: zone letter | bloc number in this zone | difficulty color | bloc color | is for Cat 1 | empty | is for Cat 2 .... | bloc id
 
     # Fetch data from Google Sheet
     plan_lines, success_plan_lines = google_sheet.get_google_sheet_data(plan_lines_range, sheet_name)
@@ -14,11 +14,13 @@ def populate_bloc(google_sheet):
             return
         
         for line in plan_lines:
-            if 17 == len(line):   # The google sheet line shall have 17 element because the 17th is the bloc id which mendatory in other case that's because the qr_code isn't associated to a bloc_id
+            if 22 == len(line):   # The google sheet line shall have 22 element because the 17th is the bloc id which mendatory in other case that's because the qr_code isn't associated to a bloc_id
                 # Extract qr_code by concatenating the 1st and last values to have the zone + the bloc id
-                qr_code = line[0] + line[-1]
+                #  Zone letter (M) + number (J19)
+                qr_code = line[0] + line[16]
 
                 # Extract bloc_id as the latest value in the array
+                #       Number in result sheet (54)
                 bloc_id = line[-1]
                 
                 # print(f'qr_code = {qr_code} | bloc_id = {bloc_id}')
