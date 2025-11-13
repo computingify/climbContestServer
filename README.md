@@ -91,3 +91,11 @@ sudo journalctl -fu climb_contest_server_app.service
 # Use to deploy on hosted server
 Store the token into base64 to use it on deployment server:
 base64 -i token.pickle | pbcopy
+
+# Googlesheet access
+## 1st possibility
+To be able to use the google sheet, the only way I find is to copy the Etienne's google sheet in ADN-Dev one. By the way, I can access to it in write mode.
+
+## 2nd possibility (the best one)
+Add adrien.jouve@adn-dev.fr as writer in shared options.
+If it doesn't work, open writer mode to someone have the link.
