@@ -14,7 +14,7 @@ def populate_bloc(google_sheet):
             return
         
         for line in plan_lines:
-            if 22 == len(line):   # The google sheet line shall have 22 element because the 17th is the bloc id which mendatory in other case that's because the qr_code isn't associated to a bloc_id
+            if 17 <= len(line):   # The google sheet line shall have 22 element because the 17th is the bloc id which mendatory in other case that's because the qr_code isn't associated to a bloc_id
                 # Extract qr_code by concatenating the 1st and last values to have the zone + the bloc id
                 #  Zone letter (M) + number (J19)
                 qr_code = line[0] + line[16]

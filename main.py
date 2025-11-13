@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from models import db, Climber, Bloc
 from google_sheets import GoogleSheet
 from google_sheets_reader import populate_bloc, populate_climbers
@@ -142,6 +142,24 @@ def update_google_sheet(climber, bloc):
     thread = threading.Thread(target=google_sheet.update_google_sheet, args=(climber.bib, int(bloc.number), climber.bib, bloc.number))
     thread.start()
 
+@app.route('/test')
+def test_page():
+    """Page web pour tester les 3 endpoints."""
+    return render_template('test_api.html')
+
+@app.route('/api/v2/contest/options', methods=['GET'])
+def get_options():
+    """Retourne la liste des climbers (name + bib) et blocs (tag) pour remplir les dropdowns."""
+    try:
+        climbers = Climber.query.all()
+        blocs = Bloc.query.all()
+        climbers_list = [{'name': c.name, 'bib': c.bib} for c in climbers]
+        blocs_list = [{'tag': b.tag} for b in blocs]
+        return jsonify({'climbers': climbers_list, 'blocs': blocs_list}), 200
+    except Exception as e:
+        print(f"An error occurred while getting options: {e}")
+        return jsonify({'climbers': [], 'blocs': []}), 500
+    
 # Launch the application
 if __name__ == '__main__':
     
