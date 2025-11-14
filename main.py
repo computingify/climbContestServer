@@ -160,6 +160,10 @@ def get_options():
         print(f"An error occurred while getting options: {e}")
         return jsonify({'climbers': [], 'blocs': []}), 500
     
+@app.route('/')
+def index():
+    return render_template('index.html')
+    
 # Launch the application
 if __name__ == '__main__':
     
