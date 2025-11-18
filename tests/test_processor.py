@@ -42,4 +42,13 @@ def test_process(app):
         db.session.commit()
         
         categories_to_update = {"U16 F", "U16 H"}
-        processor.run(categories_to_update)
+        try:
+            processor.run(categories_to_update)
+        except Exception as e:
+            print(f"Processor failed: {e}")
+            assert False, f"Processor failed: {e}"
+
+        # Vérification simple : il y a bien des grimpeurs pour chaque catégorie
+        for cat in categories_to_update:
+            climbers = Climber.query.filter_by(category=cat).all()
+            assert len(climbers) > 0, f"No climber found for category {cat}"

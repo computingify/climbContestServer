@@ -1,16 +1,18 @@
 from climb_contest.models import Climber, Bloc, Success, climber_category_bloc
 from climb_contest.extensions import db
 
+_climber_bib_counter = 1  # compteur global pour bib unique
+
 def add_climber():
-    # Create a new climber
+    global _climber_bib_counter
+    # Create a new climber with unique bib
     climber = Climber(
-        name="John Doe",
-        bib=2,
+        name=f"John Doe {_climber_bib_counter}",
+        bib=_climber_bib_counter,
         club="Club A",
         category="SNH"
     )
-
-    # Add and commit to the database
+    _climber_bib_counter += 1
     db.session.add(climber)
     db.session.commit()
     return climber

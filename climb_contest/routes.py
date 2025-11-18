@@ -156,20 +156,12 @@ def register_success():
         print(message)
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
-def update_google_sheet(climber, bloc):
-    if not climber or not bloc or not climber.bib or not bloc.number:
-        print('Error missing argument')
-        
-    # Update Google Sheet
-    thread = threading.Thread(target=google_sheet.update_google_sheet, args=(climber.bib, int(bloc.number), climber.bib, bloc.number))
-    thread.start()
-
-@app.route('/test')
+@main.route('/test')
 def test_page():
     """Page web pour tester les 3 endpoints."""
     return render_template('test_api.html')
 
-@app.route('/api/v2/contest/options', methods=['GET'])
+@main.route('/api/v2/contest/options', methods=['GET'])
 def get_options():
     """Retourne la liste des climbers (name + bib) et blocs (tag) pour remplir les dropdowns."""
     try:
@@ -182,7 +174,15 @@ def get_options():
         print(f"An error occurred while getting options: {e}")
         return jsonify({'climbers': [], 'blocs': []}), 500
     
-@app.route('/')
+@main.route('/')
 def index():
     return render_template('index.html')
+
+def update_google_sheet(climber, bloc):
+    if not climber or not bloc or not climber.bib or not bloc.number:
+        print('Error missing argument')
+        
+    # Update Google Sheet
+    thread = threading.Thread(target=google_sheet.update_google_sheet, args=(climber.bib, int(bloc.number), climber.bib, bloc.number))
+    thread.start()
 

@@ -120,3 +120,26 @@ To run unit test only on a part of test
 ```
 pytest tests/test_routes.py::test_check_climber -sv
 ```
+
+## Lancer l'application Flask en local
+
+Pour lancer ton application Flask localement, assure-toi d'être dans le dossier racine du projet et d'utiliser le bon module d'entrée.
+
+Si ton fichier principal est `climb_contest/__init__.py` et que tu utilises une factory `create_app`, lance :
+
+```
+export FLASK_APP=climb_contest
+export FLASK_ENV=development
+flask run --debug
+```
+
+Ou en une seule ligne :
+```
+FLASK_APP=climb_contest FLASK_ENV=development flask run --debug
+```
+
+**Remarques :**
+- Ne mets pas `:__init__.py` dans le nom du module.
+- Le nom du module doit correspondre au dossier contenant le fichier `__init__.py` (ici `climb_contest`).
+- Si tu veux utiliser un port spécifique :  
+  `flask run --debug --port 5007`
