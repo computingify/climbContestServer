@@ -180,18 +180,41 @@ def test_page():
     """Page web pour tester les 3 endpoints."""
     return render_template('test_api.html')
 
-@main.route('/api/v2/contest/options', methods=['GET'])
-def get_options():
-    """Retourne la liste des climbers (name + bib) et blocs (tag) pour remplir les dropdowns."""
+@main.route('/api/v2/contest/climber/all', methods=['GET'])
+def get_climber_all():
+    """Retourne la liste des climbers (name + bib) pour remplir les dropdowns."""
     try:
-        climbers = Climber.query.all()
-        blocs = Bloc.query.all()
+        climbers = handler.get_all_climbers()
         climbers_list = [{'name': c.name, 'bib': c.bib} for c in climbers]
-        blocs_list = [{'tag': b.tag} for b in blocs]
-        return jsonify({'climbers': climbers_list, 'blocs': blocs_list}), 200
+        return jsonify({'climbers': climbers_list}), 200
     except Exception as e:
-        print(f"An error occurred while getting options: {e}")
-        return jsonify({'climbers': [], 'blocs': []}), 500
+        print(f"An error occurred while getting all climbers: {e}")
+        return jsonify({'climbers': []}), 500
+    
+@main.route('/api/v2/contest/bloc/all', methods=['GET'])
+def get_bloc_all():
+    """Retourne la liste des blocs (tag) pour remplir les dropdowns."""
+    try:
+        blocs = handler.get_all_blocs()
+        blocs_list = [{'tag': b.tag} for b in blocs]
+        return jsonify({'blocs': blocs_list}), 200
+    except Exception as e:
+        print(f"An error occurred while getting all blocs: {e}")
+        return jsonify({'blocs': []}), 500
+    
+@main.route('/api/v2/contest/climber/blocs', methods=['GET'])
+def get_climber_blocs():
+    """Return all bloc associated to a climber to fill dropdowns."""
+    bib = request.args.get('bib')
+    if not bib:
+        return jsonify({'error': 'Missing bib parameter'}), 400
+    try:
+        blocs = handler.get_all_blocs_for_climber(bib)
+        blocs_list = [{'tag': b.tag} for b in blocs]
+        return jsonify(blocs_list), 200
+    except Exception as e:
+        print(f"Error in get_climber_blocs: {e}")
+        return jsonify({'error': str(e)}), 400
     
 @main.route('/')
 def index():

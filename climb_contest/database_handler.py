@@ -1,5 +1,5 @@
 from .extensions import db
-from climb_contest.models import BlocScore, Climber, Bloc, Success
+from climb_contest.models import BlocScore, Climber, Bloc, Success, climber_category_bloc
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
@@ -93,4 +93,19 @@ class DatabaseHandler:
         categories = db.session.query(Climber.category).distinct().all()
         return [category[0] for category in categories]
 
+    def get_all_blocs(self):
+        """Get all blocs from the database"""
+        return Bloc.query.all()
+    
+    def get_all_climbers(self):
+        """Get all climbers from the database"""
+        return Climber.query.all()
+    
+    def get_all_blocs_for_climber(self, climber_bib):
+        """Get all blocs associated to a climber to fill dropdowns."""
+        climber = self.get_climber_by_bib(climber_bib)
+        print(f"Found climber {climber.name} for bib {climber_bib}")
+        print(f"Associated blocs: {[b.tag for b in climber.blocs]}")
+        return climber.blocs
+    
 handler = DatabaseHandler()

@@ -6,23 +6,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const successBtn = document.getElementById('successBtn');
   const resultArea = document.getElementById('resultArea');
 
-  // Charger options depuis /api/v2/contest/options
-  fetch('/api/v2/contest/options')
+  // Charger options depuis /api/v2/contest/climber/all
+  fetch('/api/v2/contest/climber/all')
     .then(r => r.json())
     .then(data => {
+      // Nettoie les options existantes sauf la première
+      while (climberSelect.options.length > 1) climberSelect.remove(1);
+      while (blocSelect.options.length > 1) blocSelect.remove(1);
+
       data.climbers.forEach(c => {
         const opt = document.createElement('option');
-        // visible: name, value: bib (pour l'API /climber/name attend 'id' = bib)
         opt.value = c.bib;
         opt.textContent = c.name;
         climberSelect.appendChild(opt);
       });
-      data.blocs.forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b.tag;
-        opt.textContent = b.tag;
-        blocSelect.appendChild(opt);
-      });
+
+      // On ne remplit plus les blocs ici, on attend la sélection du grimpeur
+      updateButtonsState();
     })
     .catch(err => {
       resultArea.textContent = 'Erreur lors du chargement des options: ' + err;
@@ -34,11 +34,36 @@ document.addEventListener('DOMContentLoaded', () => {
     successBtn.disabled = (climberSelect.value === '' || blocSelect.value === '');
   }
 
-  climberSelect.addEventListener('change', updateButtonsState);
+  climberSelect.addEventListener('change', () => {
+    updateButtonsState();
+    // Remplit la liste des blocs associés au grimpeur sélectionné
+    const bib = climberSelect.value;
+    // Vide la liste des blocs sauf la première option
+    while (blocSelect.options.length > 1) blocSelect.remove(1);
+
+    if (bib) {
+      fetch(`/api/v2/contest/climber/blocs?bib=${encodeURIComponent(bib)}`)
+        .then(r => r.json())
+        .then(data => {
+          // data doit être une liste de blocs [{tag: ...}, ...]
+          data.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.tag;
+            opt.textContent = b.tag;
+            blocSelect.appendChild(opt);
+          });
+          updateButtonsState();
+        })
+        .catch(err => {
+          resultArea.textContent = 'Erreur lors du chargement des blocs du grimpeur: ' + err;
+        });
+    }
+  });
+
   blocSelect.addEventListener('change', updateButtonsState);
 
   checkClimberBtn.addEventListener('click', () => {
-    const payload = { id: climberSelect.value }; // id = bib attendu par l'API
+    const payload = { id: climberSelect.value };
     fetch('/api/v2/contest/climber/name', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -127,5 +152,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Rafraîchit le classement toutes les 2 secondes
-  setInterval(refreshClassement, 2000);
+  setInterval(refreshClassement, 20000);
 });

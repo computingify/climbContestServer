@@ -23,6 +23,6 @@ def create_app(config_name=None):
             with app.app_context():
                 db.create_all()  # Create the database tables
                 from .google_sheets_reader import populate_bloc, populate_climbers # Import here to avoid circular dependency
-                populate_bloc(google_sheet, db)
                 populate_climbers(google_sheet, db)
+                populate_bloc(google_sheet, db)
     return app
