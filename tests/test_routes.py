@@ -26,7 +26,7 @@ def add_bloc(tag, number):
         tag=tag,
         number=number
     )
-    print(f'======> bloc tag = {bloc.tag} number = {bloc.number}')
+    # print(f'======> bloc tag = {bloc.tag} number = {bloc.number}')
     # Add and commit to the database
     db.session.add(bloc)
     db.session.commit()
@@ -37,9 +37,9 @@ def associate_climber_bloc(climber, bloc):
     db.session.execute(climber_category_bloc.insert().values(category="SNH", bloc_id=bloc.id))
 
     # print the association db
-    print(f'climber = {climber.id} {climber.name} {climber.bib} {climber.club} {climber.category}')
-    print(f'bloc.categories = {bloc.categories} {bloc.tag} {bloc.number}')
-    print(f'climber_category_bloc = {climber_category_bloc}')
+    # print(f'climber = {climber.id} {climber.name} {climber.bib} {climber.club} {climber.category}')
+    # print(f'bloc.categories = {bloc.categories} {bloc.tag} {bloc.number}')
+    # print(f'climber_category_bloc = {climber_category_bloc}')
  
     # Commit to the database
     db.session.commit()

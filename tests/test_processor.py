@@ -1,8 +1,6 @@
-from climb_contest.results import processor
+from climb_contest.results.processor import processor
 from climb_contest.extensions import db
 from climb_contest.models import Climber, Bloc, Success
-
-processor = processor.Processor({"db": db})
 
 def test_process(app):
     with app.app_context():
@@ -43,7 +41,8 @@ def test_process(app):
         
         categories_to_update = {"U16 F", "U16 H"}
         try:
-            processor.run(categories_to_update)
+            for cat in categories_to_update:
+                processor.run(cat)
         except Exception as e:
             print(f"Processor failed: {e}")
             assert False, f"Processor failed: {e}"

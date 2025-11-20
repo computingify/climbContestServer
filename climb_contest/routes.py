@@ -3,6 +3,7 @@ from climb_contest import db
 from climb_contest.google_sheets import google_sheet
 from climb_contest.database_handler import handler
 from climb_contest.google_sheets_reader import populate_climbers
+from climb_contest.results.processor import processor
 import threading
 
 main = Blueprint("main", __name__)  # Create a Blueprint named main
@@ -155,6 +156,24 @@ def register_success():
         message = f'An error occurred: {e}'
         print(message)
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
+
+@main.route('/api/v2/contest/classement_par_categorie', methods=['GET'])
+def classement_par_categorie():
+    try:
+        classement = {}
+        # Récupère toutes les catégories présentes dans la base
+        categories = handler.get_all_climbers_categories()
+
+        for category in categories:
+            # Appelle la fonction run pour chaque catégorie
+            results = processor.run(category)
+            classement[category] = results
+
+        return jsonify(classement), 200
+
+    except Exception as e:
+        print(f"An error occurred while computing classement_par_categorie: {e}")
+        return jsonify({"error": "An internal error occurred"}), 500
 
 @main.route('/test')
 def test_page():

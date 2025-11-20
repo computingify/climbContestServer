@@ -84,4 +84,48 @@ document.addEventListener('DOMContentLoaded', () => {
       resultArea.textContent = 'Erreur: ' + err;
     });
   });
+
+  // Ajout du bouton classement
+  const classementBtn = document.createElement('button');
+  classementBtn.textContent = 'Afficher le classement';
+  classementBtn.id = 'classementBtn';
+  classementBtn.style.marginLeft = '12px';
+  resultArea.parentNode.insertBefore(classementBtn, resultArea);
+
+  // Fonction d'affichage du classement
+  function refreshClassement() {
+    fetch('/api/v2/contest/classement_par_categorie')
+      .then(r => r.json())
+      .then(data => {
+        // Affichage joli en tableaux par catégorie
+        let html = '';
+        for (const [cat, entries] of Object.entries(data)) {
+          html += `<h3>Catégorie : ${cat}</h3>`;
+          html += `<table border="1" cellpadding="4" style="margin-bottom:20px;"><thead><tr>
+            <th>Rang</th>
+            <th>Bib</th>
+            <th>Nom</th>
+            <th>Club</th>
+            <th>Score</th>
+          </tr></thead><tbody>`;
+          entries.forEach((entry, idx) => {
+            html += `<tr>
+              <td>${idx + 1}</td>
+              <td>${entry.bib}</td>
+              <td>${entry.name}</td>
+              <td>${entry.club}</td>
+              <td>${entry.score}</td>
+            </tr>`;
+          });
+          html += `</tbody></table>`;
+        }
+        resultArea.innerHTML = html;
+      })
+      .catch(err => {
+        resultArea.textContent = 'Erreur lors de la récupération du classement: ' + err;
+      });
+  }
+
+  // Rafraîchit le classement toutes les 2 secondes
+  setInterval(refreshClassement, 2000);
 });

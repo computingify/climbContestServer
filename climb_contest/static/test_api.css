@@ -23,3 +23,15 @@ pre {
   max-height: 400px;
   overflow: auto;
 }
+#classementDiv {
+  margin-bottom: 24px;
+}
+table {
+  border-collapse: collapse;
+}
+th, td {
+  padding: 6px 12px;
+}
+th {
+  background: #f0f0f0;
+}

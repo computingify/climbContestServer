@@ -1,10 +1,12 @@
 from .extensions import db
-from climb_contest.models import Climber, Bloc, Success
+from climb_contest.models import BlocScore, Climber, Bloc, Success
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
 class DatabaseHandler:
-
+    
+    MAX_BLOC_VALUE = 1000
+    
     def add_success(self, climber, bloc):
         """Add success in the database"""
         if self.is_bloc_tag_exist(bloc.tag) and self.is_climber_bib_exist(climber.bib):
@@ -15,6 +17,26 @@ class DatabaseHandler:
                     timestamp=datetime.now(),
                 )
                 db.session.add(success)
+                
+                # Compte le nombre de grimpeurs ayant réussi ce bloc dans la catégorie
+                count = (
+                    db.session.query(Success)
+                    .join(Climber, Success.climber_id == Climber.id)
+                    .filter(Success.bloc_id == bloc.id, Climber.category == climber.category)
+                    .count()
+                )
+                if count == 0:
+                    value = self.MAX_BLOC_VALUE
+                else:
+                    value = int(self.MAX_BLOC_VALUE / count)
+                # Met à jour ou crée la valeur dans BlocScore
+                bloc_score = BlocScore.query.filter_by(bloc_id=bloc.id, category=climber.category).first()
+                if not bloc_score:
+                    bloc_score = BlocScore(bloc_id=bloc.id, category=climber.category, value=value)
+                    db.session.add(bloc_score)
+                else:
+                    bloc_score.value = value
+                
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
@@ -65,5 +87,10 @@ class DatabaseHandler:
         except ValueError as message:
             print(message)
             return False
+        
+    def get_all_climbers_categories(self):
+        """Get all climbers categories from the database"""
+        categories = db.session.query(Climber.category).distinct().all()
+        return [category[0] for category in categories]
 
 handler = DatabaseHandler()
