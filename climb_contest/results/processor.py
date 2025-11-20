@@ -10,15 +10,15 @@ class Processor:
         print(f"Processing data for categories: {categories_to_update}")
         for category_to_update in categories_to_update:
             print(f"Processing data for category: {category_to_update}")
-            # Extract all Successes for categoty
-            Success.query.filter(Success.climber.in_(category_to_update)).all()
-            Success.query.filter_by(bib=climber_bib)
-        # successes = Success.query.filter(Success.climber.in_(category_to_update['blocs'])).all()
-        # for success in successes:
-        #     climber = success.climber
-        #     category = climber.category
-        #     print(f"Climber: {climber}, Category: {category}")
-        
+            # Correction : jointure avec Climber pour filtrer les Success par catégorie
+            successes = (
+                Success.query
+                .join(Climber, Success.climber_id == Climber.id)
+                .filter(Climber.category == category_to_update)
+                .all()
+            )
+            print(f"Found {len(successes)} successes for category {category_to_update}")
+            # ...tu peux traiter les succès ici...
 
         # # Process the data
         # climber_category_bloc = self.config['db'].get_climber_category_bloc()
@@ -56,5 +56,4 @@ class Processor:
         # Add the success on the top of the buffer
         # Release the mutex
         print(f"Adding success: {success}")
-        
-        
+

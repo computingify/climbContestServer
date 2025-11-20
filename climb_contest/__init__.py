@@ -11,7 +11,7 @@ def create_app(config_name=None):
     app.config.from_object(Config)
     
     if config_name == 'testing':
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'  # In-memory database for testing, but can't see it using DB Browser
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
@@ -25,5 +25,4 @@ def create_app(config_name=None):
                 from .google_sheets_reader import populate_bloc, populate_climbers # Import here to avoid circular dependency
                 populate_bloc(google_sheet, db)
                 populate_climbers(google_sheet, db)
-    
     return app
