@@ -2,7 +2,7 @@ from climb_contest.models import Climber, Bloc, climber_category_bloc
 
 def populate_bloc(google_sheet, db):
     sheet_name = 'Plan'
-    plan_lines_range = "D29:Y"  # get all google sheet Plan line, in each line we have: zone letter | bloc number in this zone | difficulty color | bloc color | is for Cat 1 | empty | is for Cat 2 .... | bloc id
+    plan_lines_range = "D28:Y"  # get all google sheet Plan line, in each line we have: zone letter | bloc number in this zone | difficulty color | bloc color | is for Cat 1 | empty | is for Cat 2 .... | bloc id
 
     # Fetch data from Google Sheet
     plan_lines, success_plan_lines = google_sheet.get_google_sheet_data(plan_lines_range, sheet_name)
@@ -12,8 +12,7 @@ def populate_bloc(google_sheet, db):
             print(f'Invalid or empty data fetched from Google Sheet. \nplan_lines={plan_lines}')
             return
         # Extract the category list from the first line of plan_lines
-        categories = plan_lines[0][0:17]
-
+        categories = plan_lines[0][0:14]
         # Start processing from the second element of plan_lines
         plan_lines = plan_lines[1:]
         
@@ -38,7 +37,7 @@ def populate_bloc(google_sheet, db):
                         db.session.commit()
                         
                     # Handle climber_category_bloc association table creation
-                    for idx in range(5, 16):
+                    for idx in range(5, 14):
                         is_associated_to_category = line[idx]
                         if is_associated_to_category:
                             category = categories[idx]
