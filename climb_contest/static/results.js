@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const [cat, entries] of Object.entries(data)) {
           html += `<h3>Catégorie : ${cat}</h3>`;
           html += `<table class="ranking-table"><thead><tr>
-            <th>Rang</th>
-            <th>Bib</th>
+            <th>Place</th>
+            <th>Dossard</th>
             <th>Nom</th>
             <th>Club</th>
             <th>Score</th>

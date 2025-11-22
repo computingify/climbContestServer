@@ -70,9 +70,18 @@ def get_climber_classement():
         climber_category = handler.get_climber_by_bib(climber_bib).category
 
         results = processor.run(climber_category)
+        
+        # Find the specific climber in the results
+        for result in results:
+            if int(result['bib']) == int(climber_bib):
+                result['rank'] = results.index(result) + 1
+                return jsonify(result), 200
 
-        return jsonify(results), 200
+        return jsonify({"warning", "No result for climber bib: {climber_bib}"}), 400
 
+    except (ValueError, TypeError, KeyError):
+        print(f"Error converting bib to int or missing key")
+        return jsonify({"error": "Invalid bib format"}), 400
     except Exception as e:
         print(f"An error occurred while computing climber_ranking: {e}")
         return jsonify({"error": "An internal error occurred"}), 500
@@ -169,6 +178,32 @@ def check_bloc_tag():
         return jsonify({'success': False, 'message': 'An error occurred'}), 400
 
 
+# Use this API endpoint to get all available categories for the contest
+@main.route('/api/v2/contest/categories/all', methods=['GET'])
+def get_all_categories():
+    """Return all available categories for the contest."""
+    try:
+        categories = handler.get_all_climbers_categories()
+        return jsonify({'categories': categories}), 200
+    except Exception as e:
+        print(f"An error occurred while getting all categories: {e}")
+        return jsonify({'categories': []}), 500
+
+# Use this API endpoint to get all climbers associate to a category in alphabetic order
+# /api/v2/contest/category/climbers?category=U11 F
+@main.route('/api/v2/contest/categories/climbers', methods=['GET'])
+def get_all_climbers_for_category():
+    """Return all climbers for a given category in alphabetic order."""
+    category = request.args.get('category')
+    if not category:
+        return jsonify({'error': 'Missing category parameter'}), 400
+    try:
+        climbers = handler.get_all_climbers_for_category(category)
+        climbers_list = [{'name': c.name, 'bib': c.bib} for c in climbers]
+        return jsonify({'climbers': climbers_list}), 200
+    except Exception as e:
+        print(f"Error in get_all_climbers_for_category: {e}")
+        return jsonify({'error': str(e)}), 400
 
 # Use by application to register a success of a climber on a bloc (the only API that write)
 # {

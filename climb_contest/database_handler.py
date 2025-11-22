@@ -89,8 +89,8 @@ class DatabaseHandler:
             return False
         
     def get_all_climbers_categories(self):
-        """Get all climbers categories from the database"""
-        categories = db.session.query(Climber.category).distinct().all()
+        """Get all climbers categories from the database and orders them"""
+        categories = db.session.query(Climber.category).distinct().order_by(Climber.category).all()
         return [category[0] for category in categories]
 
     def get_all_blocs(self):
@@ -100,6 +100,11 @@ class DatabaseHandler:
     def get_all_climbers(self):
         """Get all climbers from the database"""
         return Climber.query.order_by(Climber.name).all()
+    
+    def get_all_climbers_for_category(self, category):
+        """Get all climbers associated to a category to fill dropdowns."""
+        climbers = Climber.query.filter_by(category=category).order_by(Climber.name).all()
+        return climbers
     
     def get_all_blocs_for_climber(self, climber_bib):
         """Get all blocs associated to a climber to fill dropdowns."""
