@@ -35,3 +35,46 @@ th, td {
 th {
   background: #f0f0f0;
 }
+.classement-table {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  background: #f0f4ff;
+}
+.classement-table th, .classement-table td {
+  border: none;
+}
+.classement-table th {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+}
+.classement-table tr {
+  transition: background 0.3s, transform 2.5s;
+  font-size: 1.15em;
+}
+.classement-table tr.row-up {
+  background: #22c55e !important;
+  color: #fff;
+  animation: moveUp 2.5s;
+}
+.classement-table tr.row-down {
+  background: #ef4444 !important;
+  color: #fff;
+  animation: moveDown 2.5s;
+}
+.classement-table tr:nth-child(even):not(.row-up):not(.row-down) {
+  background: #dbeafe;
+}
+.classement-table tr:nth-child(odd):not(.row-up):not(.row-down) {
+  background: #93c5fd;
+}
+@keyframes moveUp {
+  0% { transform: translateY(40px); }
+  100% { transform: translateY(0); }
+}
+@keyframes moveDown {
+  0% { transform: translateY(-40px); }
+  100% { transform: translateY(0); }
+}

@@ -99,7 +99,7 @@ class DatabaseHandler:
     
     def get_all_climbers(self):
         """Get all climbers from the database"""
-        return Climber.query.all()
+        return Climber.query.order_by(Climber.name).all()
     
     def get_all_blocs_for_climber(self, climber_bib):
         """Get all blocs associated to a climber to fill dropdowns."""

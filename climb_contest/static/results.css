@@ -1,0 +1,54 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f8fafc;
+}
+h1 {
+  margin-bottom: 24px;
+}
+#classementDiv {
+  margin-bottom: 24px;
+}
+.classement-table {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: #fff;
+  margin-bottom: 32px;
+}
+.classement-table th, .classement-table td {
+  border: none;
+}
+.classement-table th {
+  background: #e0e7ff;
+  color: #222;
+}
+.classement-table tr {
+  transition: background 0.3s, transform 1s;
+}
+.classement-table tr.row-up {
+  background: #d1fae5;
+  animation: moveUp 1s;
+}
+.classement-table tr.row-down {
+  background: #fee2e2;
+  animation: moveDown 1s;
+}
+@keyframes moveUp {
+  0% { transform: translateY(30px); }
+  100% { transform: translateY(0); }
+}
+@keyframes moveDown {
+  0% { transform: translateY(-30px); }
+  100% { transform: translateY(0); }
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th, td {
+  padding: 6px 12px;
+}
+th {
+  background: #f0f0f0;
+}

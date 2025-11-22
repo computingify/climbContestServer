@@ -9,7 +9,8 @@ from io import BytesIO
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M' # 2024 edition
-SPREADSHEET_ID = '1ilQ2-ogmTfpgYa_oz4ogO9SN_jJvSTL9BogcmHxHtEo' # U11 U17 Nov 2025 edition ON Annony Escalade drive
+# SPREADSHEET_ID = '1ilQ2-ogmTfpgYa_oz4ogO9SN_jJvSTL9BogcmHxHtEo' # U11 U17 Nov 2025 edition ON Annony Escalade drive
+SPREADSHEET_ID = '1h3e8QUSXnCJLSYSFyB8X92cppDubeDx0yi8mn3NSh5s' # Dec 2025
 IMPORT = 'Import'
 
 class GoogleSheet:
@@ -53,24 +54,6 @@ class GoogleSheet:
         try:
             climber_row = climber_id + 3
             bloc_row = bloc_id + 1
-
-            # bloc_range = f'{IMPORT}!A{bloc_row}'
-            # # Write the Bloc name
-            # self.sheet.values().update(
-            #     spreadsheetId=SPREADSHEET_ID,
-            #     range=bloc_range,
-            #     valueInputOption='RAW',
-            #     body={'values': [[bloc_name]]}
-            # ).execute()
-
-            # climber_name_range = f'{IMPORT}!{column_letter}1'
-            # # Write the Climber name
-            # self.sheet.values().update(
-            #     spreadsheetId=SPREADSHEET_ID,
-            #     range=climber_name_range,
-            #     valueInputOption='RAW',
-            #     body={'values': [[climber_name]]}
-            # ).execute()
 
             # Translate the Bloc ID to a column letter (e.g., 2 = 'B', 27 = 'AA', etc.)
             column_letter = self.number_to_excel_column(climber_row)
