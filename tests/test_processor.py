@@ -1,53 +1,24 @@
 from climb_contest.results.processor import processor
 from climb_contest.extensions import db
-from climb_contest.models import Climber, Bloc, Success
+from climb_contest.models import Climber, Bloc, Success, climber_category_bloc
 
-def test_process(app):
-    with app.app_context():
-        # Create a new climber
-        climber1_U16H = Climber(
-            name="John Doe",
-            bib=1,
-            club="Club A",
-            category="U16 H"
-        )
-        climber2_U16H = Climber(
-            name="Serge Doe",
-            bib=2,
-            club="Club B",
-            category="U16 H"
-        )
-        climber3_U16F = Climber(
-            name="Alce Smith",
-            bib=5,
-            club="Club A",
-            category="U16 F"
-        )
-        
-        bloc = Bloc(tag="A1", number="1")
+def test_process(complete_database):
+    climbers = Climber.query.filter(Climber.id.in_(complete_database["climber_ids"])).all()
 
-        # Add and commit to the database
-        db.session.add_all({climber1_U16H, climber2_U16H, climber3_U16F, bloc})
-        db.session.commit()
-        
-        success = Success(
-            climber_id=climber1_U16H.id,
-            bloc_id=bloc.id,
-        )
-
-        # Add and commit to the database
-        db.session.add(success)
-        db.session.commit()
-        
-        categories_to_update = {"U16 F", "U16 H"}
-        try:
-            for cat in categories_to_update:
-                processor.run(cat)
-        except Exception as e:
-            print(f"Processor failed: {e}")
-            assert False, f"Processor failed: {e}"
-
-        # Vérification simple : il y a bien des grimpeurs pour chaque catégorie
+    categories_to_update = {c.category for c in climbers}
+    try:
         for cat in categories_to_update:
-            climbers = Climber.query.filter_by(category=cat).all()
-            assert len(climbers) > 0, f"No climber found for category {cat}"
+            ranking = processor.run(cat)
+            if cat == "U16 H":
+                assert ranking[0]["name"] == "Climber One"
+                assert ranking[0]["score"] == 1000
+            if cat == "U16 F":
+                assert ranking[0]["name"] == "Climber Three"
+                assert ranking[0]["score"] == 1500
+                assert ranking[0]["category"] == "U16 F"
+                assert ranking[1]["name"] == "Climber Two"
+                assert ranking[1]["score"] == 500
+                assert ranking[1]["category"] == "U16 F"
+    except Exception as e:
+        print(f"Processor failed: {e}")
+        assert False, f"Processor failed: {e}"

@@ -48,7 +48,7 @@ pip install -r requirements.txt
 
 ### Launch server side:
 <code>
-flask --app climb_contest/__init____.py --debug run
+flask --app climb_contest/__init__.py --debug run
 </code>
 
 ### Manually modify database
@@ -143,3 +143,88 @@ FLASK_APP=climb_contest FLASK_ENV=development flask run --debug
 - Le nom du module doit correspondre au dossier contenant le fichier `__init__.py` (ici `climb_contest`).
 - Si tu veux utiliser un port spécifique :  
   `flask run --debug --port 5007`
+
+## Utilisation de la table BlocScore pour la gestion des points
+
+### 1. Mettre à jour la valeur d'un bloc lorsqu'un grimpeur réussit
+
+À chaque réussite, il faut :
+- Compter le nombre de grimpeurs ayant réussi ce bloc pour la catégorie donnée.
+- Mettre à jour la valeur du bloc dans la table `BlocScore` (valeur = 1000 / nombre de grimpeurs).
+
+Exemple en Python :
+
+```python
+from climb_contest.models import BlocScore, Success, Climber, db
+
+def update_bloc_score(bloc_id, category):
+    # Compte le nombre de grimpeurs ayant réussi ce bloc dans la catégorie
+    count = (
+        db.session.query(Success)
+        .join(Climber, Success.climber_id == Climber.id)
+        .filter(Success.bloc_id == bloc_id, Climber.category == category)
+        .count()
+    )
+    if count == 0:
+        value = 1000
+    else:
+        value = int(1000 / count)
+
+    # Met à jour ou crée la valeur dans BlocScore
+    bloc_score = BlocScore.query.filter_by(bloc_id=bloc_id, category=category).first()
+    if not bloc_score:
+        bloc_score = BlocScore(bloc_id=bloc_id, category=category, value=value)
+        db.session.add(bloc_score)
+    else:
+        bloc_score.value = value
+    db.session.commit()
+    return value
+```
+
+### 2. Afficher la valeur d'un bloc
+
+Pour afficher la valeur d'un bloc pour une catégorie :
+
+```python
+bloc_score = BlocScore.query.filter_by(bloc_id=bloc_id, category=category).first()
+if bloc_score:
+    print(f"Bloc {bloc_id} pour la catégorie {category} vaut {bloc_score.value} points")
+else:
+    print("Aucune valeur enregistrée pour ce bloc et cette catégorie")
+```
+
+### 3. Faire un classement par catégorie
+
+Pour chaque grimpeur d'une catégorie, additionne les valeurs des blocs qu'il a réussis :
+
+```python
+from sqlalchemy import func
+
+def classement_par_categorie(category):
+    # Liste tous les grimpeurs de la catégorie
+    climbers = Climber.query.filter_by(category=category).all()
+    classement = []
+    for climber in climbers:
+        # Liste des succès du grimpeur
+        successes = Success.query.filter_by(climber_id=climber.id).all()
+        score_total = 0
+        for success in successes:
+            bloc_score = BlocScore.query.filter_by(bloc_id=success.bloc_id, category=category).first()
+            if bloc_score:
+                score_total += bloc_score.value
+        classement.append((climber.name, score_total))
+    # Trie par score décroissant
+    classement.sort(key=lambda x: x[1], reverse=True)
+    return classement
+
+# Exemple d'affichage
+for name, score in classement_par_categorie("U16 H"):
+    print(f"{name}: {score} points")
+```
+
+---
+
+**Résumé :**
+- Mets à jour la valeur du bloc à chaque réussite avec `update_bloc_score`.
+- Affiche la valeur d'un bloc avec une requête sur `BlocScore`.
+- Calcule le classement par catégorie en additionnant les valeurs des blocs réussis pour chaque grimpeur.
