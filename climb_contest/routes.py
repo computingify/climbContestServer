@@ -273,15 +273,15 @@ def get_ranking_by_categories():
 
     
     
-@main.route('/')
+@main.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
-@main.route('/results')
+@main.route('/results', methods=['GET'])
 def results_page():
     return render_template('results.html')
 
-@main.route('/test')
+@main.route('/test', methods=['GET'])
 def test_page():
     """Page web pour tester les 3 endpoints."""
     return render_template('test_api.html')

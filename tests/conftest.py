@@ -10,7 +10,7 @@ def app():
     # Initialize the test database
     with app.app_context():
         db.create_all()
-        yield
+        yield app
 
     # Clean up the test database
     with app.app_context():

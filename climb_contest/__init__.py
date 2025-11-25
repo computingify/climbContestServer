@@ -14,6 +14,7 @@ def create_app(config_name=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'  # In-memory database for testing, but can't see it using DB Browser
     else:
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"check_same_thread": False}}
 
     db.init_app(app)
     # Initialize the database with data from Google Sheets if not in testing mode

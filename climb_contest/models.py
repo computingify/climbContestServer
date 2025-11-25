@@ -16,6 +16,7 @@ class Climber(db.Model):
     bib = db.Column(Integer, unique=True, nullable=False)
     club = db.Column(String(50))
     category = db.Column(String(5))
+    score = db.Column(Integer, nullable=False, default=0)
     successes = relationship('Success', backref='climber', lazy=True)
     blocs = relationship('Bloc', secondary=climber_category_bloc,
                          primaryjoin="Climber.category == climber_category_bloc.c.category",
@@ -36,17 +37,3 @@ class Success(db.Model):
     climber_id = db.Column(Integer, db.ForeignKey('climber.id'), nullable=False)
     bloc_id = db.Column(Integer, db.ForeignKey('bloc.id'), nullable=False)
     timestamp = db.Column(DateTime, nullable=False, default=func.current_timestamp())
-
-# BlocScore table to store the score of each bloc by category
-class BlocScore(db.Model):
-    __tablename__ = 'bloc_score'
-    id = db.Column(Integer, primary_key=True)
-    bloc_id = db.Column(Integer, db.ForeignKey('bloc.id'), nullable=False)
-    category = db.Column(String(5), nullable=False)
-    value = db.Column(Integer, nullable=False, default=1000)
-
-    bloc = relationship('Bloc', backref='scores')
-
-    __table_args__ = (
-        db.UniqueConstraint('bloc_id', 'category', name='unique_bloc_category'),
-    )

@@ -6,9 +6,13 @@ def test_process(complete_database):
     climbers = Climber.query.filter(Climber.id.in_(complete_database["climber_ids"])).all()
 
     categories_to_update = {c.category for c in climbers}
+    
     try:
         for cat in categories_to_update:
             ranking = processor.run(cat)
+            
+            print(f"Ranking for category {cat}: {ranking}")
+            
             if cat == "U16 H":
                 assert ranking[0]["name"] == "Climber One"
                 assert ranking[0]["score"] == 1000
