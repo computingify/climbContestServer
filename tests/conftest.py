@@ -54,27 +54,34 @@ def complete_database(app):
     """Sets up a complete database with climbers, blocs, and successes."""
     categoryF = "U16 F"
     categoryH = "U16 H"
+    category11H = "U11 H"
     climber1 = Climber(name="Climber One", bib=1, club="Club A", category=categoryH)
     climber2 = Climber(name="Climber Two", bib=2, club="Club B", category=categoryF)
     climber3 = Climber(name="Climber Three", bib=3, club="Club B", category=categoryF)
+    climber4 = Climber(name="Climber Four", bib=4, club="Club C", category=category11H)
     bloc1 = Bloc(tag="Bloc1", number="1")
     bloc2 = Bloc(tag="Bloc2", number="2")
     bloc3 = Bloc(tag="Bloc3", number="3")
     
-    db.session.add_all([climber1, climber2, climber3, bloc1, bloc2, bloc3])
+    db.session.add_all([climber1, climber2, climber3, climber4, bloc1, bloc2, bloc3])
     
-    db.session.execute(climber_category_bloc.insert().values(category=categoryF, bloc_id=1))
-    db.session.execute(climber_category_bloc.insert().values(category=categoryF, bloc_id=2))
-    db.session.execute(climber_category_bloc.insert().values(category=categoryH, bloc_id=1))
+    for i in [1, 2, 3]:
+        db.session.execute(climber_category_bloc.insert().values(category=categoryF, bloc_id=i))
+        db.session.execute(climber_category_bloc.insert().values(category=categoryH, bloc_id=i))
+        db.session.execute(climber_category_bloc.insert().values(category=category11H, bloc_id=i))
     
     db.session.commit()
     
-    handler.add_success(climber1, bloc1) # Bloc1 score = 1000 for U16 H
+    handler.add_success(climber1, bloc1)
+    handler.add_success(climber1, bloc3)
     handler.add_success(climber2, bloc1)
-    handler.add_success(climber3, bloc1) # Bloc1 score = 500 for U16 F
-    handler.add_success(climber3, bloc2) # Bloc2 score = 1000 for U16 F
+    handler.add_success(climber3, bloc1)
+    handler.add_success(climber3, bloc2)
+    handler.add_success(climber3, bloc3)
+    handler.add_success(climber4, bloc2)
     
     return {
-        "climber_ids": [climber1.id, climber2.id, climber3.id],
+        "climber_ids": [climber1.id, climber2.id, climber3.id, climber4.id],
         "bloc_ids": [bloc1.id, bloc2.id, bloc3.id],
+        "categories": [categoryF, categoryH, category11H]
     }

@@ -2,6 +2,8 @@ from .extensions import db
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Table
 from sqlalchemy.orm import relationship
 
+MAX_BLOC_VALUE = 1000
+
 # Association table for Climber category and Bloc
 climber_category_bloc = db.Table('climber_category_bloc',
     db.Column('category', String(5), primary_key=True),
