@@ -15,9 +15,13 @@ IMPORT = 'Import'
 
 class GoogleSheet:
     def __init__(self):
+        self.is_initialized = False
+        
+    def initialize(self):
         self.creds = self.authenticate_google()
         self.service = build('sheets', 'v4', credentials=self.creds)
         self.sheet = self.service.spreadsheets()
+        self.is_initialized = True
 
     def authenticate_google(self):
         """Authenticate with Google Sheets API."""
@@ -51,6 +55,8 @@ class GoogleSheet:
 
     def update_google_sheet(self, climber_id, bloc_id, climber_name, bloc_name):
         """Update the Google Sheet with climber and bloc information."""
+        if not self.is_initialized:
+            self.initialize()
         try:
             climber_row = climber_id + 3
             bloc_row = bloc_id + 1
