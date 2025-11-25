@@ -38,7 +38,7 @@ def test_process_multiple_categories(complete_database):
     assert ranking[2]["category"] == "U16 F"
 
 def test_process_scratch(complete_database):
-    ranking = processor.run(None)
+    ranking = processor.run('scratch')
     
     # print(f"Ranking for category SCRATCH: {ranking}")
     

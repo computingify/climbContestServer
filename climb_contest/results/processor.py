@@ -6,7 +6,7 @@ class Processor:
     def run(self, categories_to_update):
         """Run algorithm to calculate the contest result based on the category.
         categories_to_update can be:
-            - None or "all" or "all_categories" or "*" -> all categories
+            - "scratch" or "all" or "all_categories" or "*" -> all categories
             - a string category name -> that single category
             - a list/tuple/set of category names -> those categories
             - "men" or "m" -> categories ending with " H"
@@ -26,7 +26,7 @@ class Processor:
             cat_list = list(selector)
         elif isinstance(selector, str):
             s = selector.strip().lower()
-            if s in ("all", "all_categories", "*"):
+            if s in ("scratch", "all", "all_categories", "*"):
                 is_all = True
             elif s in ("men", "m"):
                 suffix = " H"

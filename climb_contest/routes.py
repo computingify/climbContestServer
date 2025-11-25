@@ -259,6 +259,7 @@ def get_ranking_by_categories():
         classement = {}
         # Récupère toutes les catégories présentes dans la base
         categories = handler.get_all_climbers_categories()
+        categories.append('scratch')
 
         for category in categories:
             # Appelle la fonction run pour chaque catégorie
