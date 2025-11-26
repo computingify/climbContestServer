@@ -1,54 +1,221 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent-gold: #FFD700;   /* Or plus jaune vif */
+    --accent-silver: #F8F9FA; /* Argent presque blanc */
+    --accent-bronze: #FB8C00; /* Bronze orangé intense */
+    --success-green: #10b981;
+    --danger-red: #ef4444;
+    --neon-blue: #3b82f6;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f8fafc;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
 }
+
+#app {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 20px;
+}
+
 h1 {
-  margin-bottom: 24px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5em;
+    margin: 0;
+    background: linear-gradient(90deg, #fff, var(--neon-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
-#classementDiv {
-  margin-bottom: 24px;
+
+button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
 }
-.classement-table {
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  background: #fff;
-  margin-bottom: 32px;
+
+button:hover {
+    background: var(--neon-blue);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
-.classement-table th, .classement-table td {
-  border: none;
+
+/* Category Card */
+.category-card {
+    margin-bottom: 60px;
+    animation: fadeIn 0.8s ease-out;
 }
-.classement-table th {
-  background: #e0e7ff;
-  color: #222;
+
+.category-title {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-secondary);
+    border-left: 5px solid var(--neon-blue);
+    padding-left: 15px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
-.classement-table tr {
-  transition: background 0.3s, transform 1s;
+
+/* Table Styles */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
-.classement-table tr.row-up {
-  background: #d1fae5;
-  animation: moveUp 1s;
-}
-.classement-table tr.row-down {
-  background: #fee2e2;
-  animation: moveDown 1s;
-}
-@keyframes moveUp {
-  0% { transform: translateY(30px); }
-  100% { transform: translateY(0); }
-}
-@keyframes moveDown {
-  0% { transform: translateY(-30px); }
-  100% { transform: translateY(0); }
-}
+
 table {
-  border-collapse: collapse;
-  width: 100%;
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
 }
-th, td {
-  padding: 6px 12px;
-}
+
 th {
-  background: #f0f0f0;
+    text-align: left;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
+td {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 1.1em;
+}
+
+/* Specific Columns */
+.th-rank { width: 60px; text-align: center; }
+.rank-cell { text-align: center; font-weight: bold; }
+
+.th-score { text-align: right; }
+.score { 
+    text-align: right; 
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    color: var(--neon-blue);
+}
+
+.bib { color: var(--text-secondary); font-family: monospace; }
+.name { font-weight: 500; }
+
+/* Podium Styling */
+/* =========================================
+   NOUVEAU STYLE POUR LE PODIUM
+========================================= */
+
+/* RANG 1 - OR */
+/* On force la couleur de fond, même si une animation 'up'/'down' est en cours */
+.rank-1 {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.3), transparent) !important;
+}
+
+/* Ajout d'une bordure brillante à gauche de la première cellule */
+.rank-1 td:first-child {
+    border-left: 4px solid var(--accent-gold);
+    box-shadow: inset 10px 0 20px -10px rgba(255, 215, 0, 0.5);
+}
+
+/* Le numéro lui-même */
+.rank-1 .rank-badge {
+    color: var(--accent-gold);
+    /* Ombre de texte intense pour un effet néon */
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    font-size: 1.6em;
+    font-weight: 900;
+}
+
+/* RANG 2 - ARGENT */
+.rank-2 {
+    background: linear-gradient(90deg, rgba(248, 249, 250, 0.25), transparent) !important;
+}
+
+.rank-2 td:first-child {
+    border-left: 4px solid var(--accent-silver);
+    box-shadow: inset 10px 0 20px -10px rgba(248, 249, 250, 0.4);
+}
+
+.rank-2 .rank-badge {
+    color: var(--accent-silver);
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    font-size: 1.4em;
+    font-weight: 800;
+}
+
+/* RANG 3 - BRONZE */
+.rank-3 {
+    background: linear-gradient(90deg, rgba(251, 140, 0, 0.25), transparent) !important;
+}
+
+.rank-3 td:first-child {
+    border-left: 4px solid var(--accent-bronze);
+    box-shadow: inset 10px 0 20px -10px rgba(251, 140, 0, 0.4);
+}
+
+.rank-3 .rank-badge {
+    color: var(--accent-bronze);
+    text-shadow: 0 0 15px rgba(251, 140, 0, 0.6);
+    font-size: 1.3em;
+    font-weight: 800;
+}
+/* ========================================= */
+
+/* Animations Rows */
+tr {
+    transition: transform 0.5s ease, background-color 0.5s ease;
+}
+
+tr.up {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    animation: slideUp 0.5s ease;
+}
+
+tr.down {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(10px); opacity: 0.5; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }

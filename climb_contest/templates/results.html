@@ -1,13 +1,59 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Classement - ClimbContest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/results.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body>
-  <h1>Classement général</h1>
-  <div id="classementDiv"></div>
+  
+  <div id="app">
+    <header>
+        <h1>🏆 Résultats Live 🏆</h1>
+        <button @click="refreshRanking" :class="{ 'spinning': loading }">
+            ↻ Actualiser
+        </button>
+    </header>
+
+    <div class="container">
+        <div v-if="Object.keys(ranking).length === 0" class="no-data">
+            Chargement des scores...
+        </div>
+
+        <div v-for="(entries, category) in ranking" :key="category" class="category-card">
+            <h2 class="category-title">[[ category ]]</h2>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th class="th-rank">#</th>
+                        <th>Dossard</th>
+                        <th class="th-name">Grimpeur</th>
+                        <th>Club</th>
+                        <th class="th-score">Points</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(entry, idx) in entries" :key="entry.bib" :class="getRowClass(category, idx)">
+                        <td class="rank-cell">
+                            <span class="rank-badge">[[ idx + 1 ]]</span>
+                        </td>
+                        <td class="bib">[[ entry.bib ]]</td>
+                        <td class="name">[[ entry.name ]]</td>
+                        <td class="club">[[ entry.club ]]</td>
+                        <td class="score">[[ entry.score ]] pts</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <script src="/static/results.js"></script>
 </body>
 </html>
