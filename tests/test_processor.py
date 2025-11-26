@@ -1,10 +1,12 @@
-from climb_contest.results.processor import processor
+from climb_contest.results.processor import Processor
 
-def test_process(complete_database):
+
+def test_process(complete_database, app):
+    processor = Processor(app)
     categories_to_update = {"U16 F", "U16 H"}
     
     for cat in categories_to_update:
-        ranking = processor.run(cat)
+        ranking = processor.calculate(cat)
         
         # print(f"Ranking for category {cat}: {ranking}")
         
@@ -20,10 +22,11 @@ def test_process(complete_database):
             assert ranking[1]["score"] == 500
             assert ranking[1]["category"] == "U16 F"
 
-def test_process_multiple_categories(complete_database):
+def test_process_multiple_categories(complete_database, app):
+    processor = Processor(app)
     categories_to_update = {"U16 F", "U16 H"}
     
-    ranking = processor.run(categories_to_update)
+    ranking = processor.calculate(categories_to_update)
     
     # print(f"Ranking for category {categories_to_update}: {ranking}")
     
@@ -37,8 +40,9 @@ def test_process_multiple_categories(complete_database):
     assert ranking[2]["score"] == 333
     assert ranking[2]["category"] == "U16 F"
 
-def test_process_scratch(complete_database):
-    ranking = processor.run('scratch')
+def test_process_scratch(complete_database, app):
+    processor = Processor(app)
+    ranking = processor.calculate('scratch')
     
     # print(f"Ranking for category SCRATCH: {ranking}")
     

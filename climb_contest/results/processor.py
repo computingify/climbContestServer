@@ -1,9 +1,80 @@
 import threading
-from climb_contest.models import MAX_BLOC_VALUE, Success, Climber, Bloc, climber_category_bloc, db
+import time
+from datetime import datetime
+from climb_contest.models import MAX_BLOC_VALUE, Success, Climber, Bloc, climber_category_bloc, db, Ranking
 
-class Processor:
+class Processor(threading.Thread):
     
-    def run(self, categories_to_update):
+    def __init__(self, app):
+        super().__init__()
+        self.daemon = True # Le thread se termine lorsque le programme principal se termine
+        self.app = app
+        self._stop_event = threading.Event()
+        self.ranking_update_needed_flag = False
+        
+    def ranking_update_needed(self, needed=True):
+        self.ranking_update_needed_flag = needed
+    
+    def run(self):
+        while not self._stop_event.is_set():
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Start of processing loop (ID: {threading.get_ident()})")
+            if self.ranking_update_needed_flag:
+                self.ranking_update_needed_flag = False
+                with self.app.app_context():
+                    try:
+                        self._calculate_and_store_ranking()
+                    except Exception as e:
+                        print(f"[{datetime.now().strftime('%H:%M:%S')}] ERREUR lors du calcul/stockage du classement : {e}")
+            
+            # Attend 15 secondes avant la prochaine exécution
+            self._stop_event.wait(30)
+    
+    def _calculate_and_store_ranking(self):
+        """Récupère toutes les catégories, calcule et stocke le classement."""
+        
+        # NOTE: Vous aurez besoin d'une fonction pour récupérer toutes les catégories
+        # Si vous utilisez un `handler`, vous devez l'importer et le rendre disponible.
+        # Pour simplifier, on peut juste interroger la DB:
+        categories_rows = db.session.query(Climber.category).distinct().order_by(Climber.category).all()
+        categories = [c[0] for c in categories_rows if c[0]] # Liste des catégories existantes
+        categories.append('scratch') # Ajoutez la catégorie scratch
+        
+        new_ranking_entries = []
+        for category in categories:
+            # 1. Calcul du classement pour la catégorie
+            results = self.calculate(category, commit_score=True)
+            
+            # 2. Création des objets Ranking avec le rang
+            for rank, climber_data in enumerate(results, 1):
+                new_ranking_entries.append(
+                    Ranking(
+                        climber_id=climber_data["id"],
+                        category=category,
+                        rank=rank,
+                        score=climber_data["score"]
+                    )
+                )
+                # Update climber own_category_rank
+                db.session.query(Climber).filter_by(id=climber_data["id"]).update({
+                    'own_category_rank': rank
+                })
+
+        # 3. Mise à jour atomique de la table Ranking
+        # Supprimer l'ancien classement
+        db.session.query(Ranking).delete()
+        
+        # Insérer le nouveau classement
+        db.session.bulk_save_objects(new_ranking_entries)
+        
+        # Valider la transaction
+        db.session.commit()
+        
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Classement recalculé et stocké ({len(new_ranking_entries)} entrées).")
+
+    def stop(self):
+        self._stop_event.set()
+    
+    def calculate(self, categories_to_update, commit_score=False):
         """Run algorithm to calculate the contest result based on the category.
         categories_to_update can be:
             - "scratch" or "all" or "all_categories" or "*" -> all categories
@@ -92,7 +163,9 @@ class Processor:
                 climber = success.climber
                 climber.score += value
                 db.session.add(climber)
-        db.session.commit()
+                
+        if commit_score:
+            db.session.commit()
         
         # Now create rankings based on updated climber scores
         ranking = []
@@ -108,5 +181,3 @@ class Processor:
         # Sort by score descending
         ranking.sort(key=lambda x: x["score"], reverse=True)
         return ranking
-
-processor = Processor()

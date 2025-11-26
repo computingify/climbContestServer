@@ -19,6 +19,7 @@ def create_app(config_name=None):
     db.init_app(app)
     # Initialize the database with data from Google Sheets if not in testing mode
     if config_name != 'testing':
+        google_sheet.initialize()
         if not os.path.exists('instance/database.db'):
             print("Initializing the database with data from Google Sheets")
             with app.app_context():
@@ -26,4 +27,10 @@ def create_app(config_name=None):
                 from .google_sheets_reader import populate_bloc, populate_climbers # Import here to avoid circular dependency
                 populate_climbers(google_sheet, db)
                 populate_bloc(google_sheet, db)
+                
+    # Start processor thread
+    from .results.processor import Processor
+    app.processor = Processor(app)
+    app.processor.start()
+    
     return app

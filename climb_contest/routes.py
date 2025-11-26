@@ -1,9 +1,8 @@
-from flask import Flask, request, jsonify, Blueprint, render_template
+from flask import request, jsonify, Blueprint, render_template, current_app
 from climb_contest import db
 from climb_contest.google_sheets import google_sheet
 from climb_contest.database_handler import handler
 from climb_contest.google_sheets_reader import populate_climbers
-from climb_contest.results.processor import processor
 import threading
 
 main = Blueprint("main", __name__)  # Create a Blueprint named main
@@ -63,20 +62,14 @@ def check_climber():
 # Get the ranking of a specific climber based on their bib
 # /api/v2/contest/climber/ranking?bib=11
 @main.route('/api/v2/contest/climber/ranking', methods=['GET'])
-def get_climber_classement():
+def get_climber_ranking():
     try:
         climber_bib = request.args.get('bib')
         # Récupère toutes les catégories présentes dans la base
-        climber_category = handler.get_climber_by_bib(climber_bib).category
-
-        results = processor.run(climber_category)
-        
-        # Find the specific climber in the results
-        for result in results:
-            if int(result['bib']) == int(climber_bib):
-                result['rank'] = results.index(result) + 1
-                return jsonify(result), 200
-
+        climber = handler.get_climber_by_bib(climber_bib)
+        if climber:
+            return jsonify(climber.to_dict()), 200
+            
         return jsonify({"warning", "No result for climber bib: {climber_bib}"}), 400
 
     except (ValueError, TypeError, KeyError):
@@ -241,6 +234,9 @@ def register_success():
         
         handler.add_success(climber, bloc)
         
+        # Inform the processor that a ranking update is needed
+        current_app.processor.ranking_update_needed()
+        
         return jsonify({
             'success': True,
             'message': 'Well done'
@@ -256,17 +252,20 @@ def register_success():
 @main.route('/api/v2/contest/ranking_by_categories', methods=['GET'])
 def get_ranking_by_categories():
     try:
-        classement = {}
-        # Récupère toutes les catégories présentes dans la base
-        categories = handler.get_all_climbers_categories()
-        categories.append('scratch')
+        ranking = {}
+        # Récupère tous les rankings depuis la table Ranking
+        all_rankings = handler.get_rankings()
+        
+        # Structure les résultats par catégorie
+        for rank_entry in all_rankings:
+            category = rank_entry.category
+            if category not in ranking:
+                ranking[category] = []
+            
+            # Utilise la méthode to_dict() définie dans le modèle Ranking
+            ranking[category].append(rank_entry.to_dict())
 
-        for category in categories:
-            # Appelle la fonction run pour chaque catégorie
-            results = processor.run(category)
-            classement[category] = results
-
-        return jsonify(classement), 200
+        return jsonify(ranking), 200
 
     except Exception as e:
         print(f"An error occurred while computing ranking_by_categories: {e}")
@@ -294,4 +293,3 @@ def update_google_sheet(climber, bloc):
     # Update Google Sheet
     thread = threading.Thread(target=google_sheet.update_google_sheet, args=(climber.bib, int(bloc.number), climber.bib, bloc.number))
     thread.start()
-

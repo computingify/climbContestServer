@@ -1,5 +1,5 @@
 from .extensions import db
-from climb_contest.models import Climber, Bloc, Success
+from climb_contest.models import Climber, Bloc, Success, Ranking
 from datetime import datetime
 
 """Database handler: used to handle database operations"""
@@ -88,5 +88,11 @@ class DatabaseHandler:
         """Get all blocs associated to a climber to fill dropdowns."""
         climber = self.get_climber_by_bib(climber_bib)
         return climber.blocs
+    
+    def get_rankings(self, category=None):
+        """Get all rankings from the database"""
+        if category:
+            return Ranking.query.filter_by(category=category).order_by(Ranking.rank).all()
+        return Ranking.query.join(Climber).order_by(Ranking.category, Ranking.rank).all()
     
 handler = DatabaseHandler()
