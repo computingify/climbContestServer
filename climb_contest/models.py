@@ -19,7 +19,8 @@ class Climber(db.Model):
     club = db.Column(String(50))
     category = db.Column(String(50))
     score = db.Column(Integer, nullable=False, default=0)
-    own_category_rank = db.Column(Integer, nullable=False, default=0)
+    category_rank = db.Column(Integer, nullable=False, default=0)
+    scratch_rank = db.Column(Integer, nullable=False, default=0)
     
     # Relations
     successes = relationship('Success', backref='climber', lazy=True)
@@ -38,7 +39,8 @@ class Climber(db.Model):
             "club": self.club,
             "category": self.category,
             "score": self.score,
-            "rank": self.own_category_rank,
+            "rank": self.category_rank,
+            "scratch": self.scratch_rank,
         }
 
 # Bloc table to store bloc details
@@ -73,6 +75,7 @@ class Ranking(db.Model):
             "name": self.climber.name,
             "bib": self.climber.bib,
             "club": self.climber.club,
+            "climber_category": self.climber.category,
             "category": self.category,
             "score": self.score,
             "rank": self.rank,

@@ -129,6 +129,8 @@ td {
 
 .bib { color: var(--text-secondary); font-family: monospace; }
 .name { font-weight: 500; }
+.th-cat { text-align: right; }
+.category { text-align: right; color: var(--text-secondary); font-family: monospace; }
 
 /* Podium Styling */
 /* =========================================

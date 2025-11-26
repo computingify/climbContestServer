@@ -17,7 +17,7 @@ class Processor(threading.Thread):
     
     def run(self):
         while not self._stop_event.is_set():
-            print(f"[{datetime.now().strftime('%H:%M:%S')}] Start of processing loop (ID: {threading.get_ident()})")
+            # print(f"[{datetime.now().strftime('%H:%M:%S')}] Start of processing loop (ID: {threading.get_ident()})")
             if self.ranking_update_needed_flag:
                 self.ranking_update_needed_flag = False
                 with self.app.app_context():
@@ -54,10 +54,15 @@ class Processor(threading.Thread):
                         score=climber_data["score"]
                     )
                 )
-                # Update climber own_category_rank
-                db.session.query(Climber).filter_by(id=climber_data["id"]).update({
-                    'own_category_rank': rank
-                })
+                # Update climber category_rank
+                if category == 'scratch':
+                    db.session.query(Climber).filter_by(id=climber_data["id"]).update({
+                        'scratch_rank': rank
+                    })
+                elif category == climber_data["category"]:
+                    db.session.query(Climber).filter_by(id=climber_data["id"]).update({
+                        'category_rank': rank
+                    })
 
         # 3. Mise à jour atomique de la table Ranking
         # Supprimer l'ancien classement
@@ -69,8 +74,6 @@ class Processor(threading.Thread):
         # Valider la transaction
         db.session.commit()
         
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Classement recalculé et stocké ({len(new_ranking_entries)} entrées).")
-
     def stop(self):
         self._stop_event.set()
     
