@@ -13,13 +13,14 @@
   <div id="app">
     <header>
         <h1>🏆 Résultats Live 🏆</h1>
-        <button @click="forceRefresh" :class="{ 'spinning': loading }">
-            ↻ Actualiser
-        </button>
-        <!-- Bouton Résultats ajouté en haut à droite -->
-        <a href="/" class="button" title="Page Juge">
-            <i class="fas fa-poll"></i> Page Juge
-        </a>
+        <div class="header-controls">
+            <button @click="forceRefresh" :class="{ 'spinning': loading }">
+                ↻ Actualiser
+            </button>
+            <a href="/" class="index-btn" title="Page Juge">
+                <i class="fas fa-home"></i> Juge
+            </a>
+        </div>
     </header>
 
     <div class="container">

@@ -42,6 +42,12 @@ header {
     padding-bottom: 20px;
 }
 
+.header-controls {
+    display: flex; /* Alignement horizontal */
+    gap: 15px; /* Espace entre le bouton Actualiser et le bouton Index */
+    align-items: center;
+}
+
 h1 {
     font-family: 'Montserrat', sans-serif;
     font-size: 2.5em;
@@ -70,12 +76,8 @@ button:hover {
     border-color: var(--neon-blue);
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
-/* --- STYLE: Bouton Résultats (Haut Droite) --- */
+/* --- STYLE: Bouton Index (Haut Droite) --- */
 .index-btn {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
     background-color: var(--accent);
     color: white;
     padding: 8px 12px;
@@ -86,11 +88,15 @@ button:hover {
     font-size: 0.9rem;
     transition: background-color 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: inline-flex; 
+    align-items: center;
 }
 
 .index-btn:hover {
     background-color: #d35400; /* Orange plus foncé au survol */
+    box-shadow: 0 0 15px rgba(230, 126, 34, 0.5);
 }
+
 /* Category Card */
 .category-card {
     margin-bottom: 60px;
