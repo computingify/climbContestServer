@@ -17,9 +17,10 @@ class Processor(threading.Thread):
     
     def run(self):
         while not self._stop_event.is_set():
-            # print(f"[{datetime.now().strftime('%H:%M:%S')}] Start of processing loop (ID: {threading.get_ident()})")
+            print(f"[{datetime.now().strftime('%H:%M:%S')}] Start of processing loop (ID: {threading.get_ident()})")
             if self.ranking_update_needed_flag:
                 self.ranking_update_needed_flag = False
+                print(f"[{datetime.now().strftime('%H:%M:%S')}] RUN processing")
                 with self.app.app_context():
                     try:
                         self._calculate_and_store_ranking()

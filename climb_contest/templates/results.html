@@ -13,7 +13,7 @@
   <div id="app">
     <header>
         <h1>🏆 Résultats Live 🏆</h1>
-        <button @click="refreshRanking" :class="{ 'spinning': loading }">
+        <button @click="forceRefresh" :class="{ 'spinning': loading }">
             ↻ Actualiser
         </button>
     </header>

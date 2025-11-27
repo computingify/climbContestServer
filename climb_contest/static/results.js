@@ -14,6 +14,24 @@ createApp({
         };
     },
     methods: {
+        async forceRefresh() {
+            const endpoint = '/api/v2/contest/force_refresh_ranking';
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    await this.refreshRanking();
+                } else {
+                    console.error('Failed to signal ranking refresh:', response.status);
+                }
+            } catch (error) {
+                console.error('Network or parsing error:', error);
+            }
+        },
+
         async refreshRanking() {
             this.loading = true;
             try {

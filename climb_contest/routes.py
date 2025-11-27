@@ -271,6 +271,15 @@ def get_ranking_by_categories():
         print(f"An error occurred while computing ranking_by_categories: {e}")
         return jsonify({"error": "An internal error occurred"}), 500
 
+# To force ranking recomputation
+@main.route('/api/v2/contest/force_refresh_ranking', methods=['POST'])
+def force_refresh_ranking():
+    try:
+        current_app.processor.ranking_update_needed()
+        return jsonify({'success': True, 'message': 'Ranking refresh requested'}), 200
+    except Exception as e:
+        print(f"An error occurred while requesting ranking computation: {e}")
+        return jsonify({'success': False, 'message': 'An error occurred'}), 500
     
     
 @main.route('/', methods=['GET'])
