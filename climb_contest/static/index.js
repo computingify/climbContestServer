@@ -67,7 +67,7 @@ createApp({
 
         // --- Logique Grimpeur ---
         async verifyClimber(bib) {
-            // Reset état temporaire
+            console.log("Vérification grimpeur pour bib:", bib);
             this.climberState = 'default';
             
             const res = await this.apiPost('/api/v2/contest/climber/name', { id: bib });
@@ -76,9 +76,11 @@ createApp({
                 this.savedClimberBib = bib;
                 this.climberState = 'success';
                 this.globalError = "";
+                console.log("Grimpeur vérifié:", res);
             } else {
                 this.savedClimberBib = null;
                 this.climberState = 'error';
+                console.log("Grimpeur inconnu");
                 // On peut afficher l'erreur spécifique si besoin
                 // this.globalError = res.message;
             }
@@ -86,6 +88,7 @@ createApp({
 
         // --- Logique Bloc ---
         async verifyBloc(tag) {
+            console.log("Vérification bloc pour tag:", tag);
             this.blocState = 'default';
             
             const res = await this.apiPost('/api/v2/contest/bloc/name', { id: tag });
@@ -94,9 +97,11 @@ createApp({
                 this.savedBlocTag = tag;
                 this.blocState = 'success';
                 this.globalError = "";
+                console.log("Bloc vérifié:", res);
             } else {
                 this.savedBlocTag = null;
                 this.blocState = 'error';
+                console.log("Bloc inconnu");
             }
         },
 
@@ -171,7 +176,10 @@ createApp({
                     this.verifyClimber(decodedText);
                 } else if (this.scanTarget === 'bloc') {
                     this.verifyBloc(decodedText);
+                }else {
+                    console.error(`Cible de scan inconnue: ${this.scanTarget}`);
                 }
+                this.scanTarget = null;
             });
         },
 
@@ -186,7 +194,6 @@ createApp({
                 this.html5QrcodeScanner = null;
             }
             this.qrVisible = false;
-            this.scanTarget = null;
         }
     }
 }).mount('#app');

@@ -3,12 +3,14 @@
     --card-bg: rgba(30, 41, 59, 0.7);
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
+    --accent: #e67e22; /* Orange ClimbContest */
     --accent-gold: #FFD700;   /* Or plus jaune vif */
     --accent-silver: #F8F9FA; /* Argent presque blanc */
     --accent-bronze: #FB8C00; /* Bronze orangé intense */
     --success-green: #10b981;
     --danger-red: #ef4444;
     --neon-blue: #3b82f6;
+    --font-body: 'Roboto', sans-serif;
 }
 
 body {
@@ -68,7 +70,27 @@ button:hover {
     border-color: var(--neon-blue);
     box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
+/* --- STYLE: Bouton Résultats (Haut Droite) --- */
+.index-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--accent);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
 
+.index-btn:hover {
+    background-color: #d35400; /* Orange plus foncé au survol */
+}
 /* Category Card */
 .category-card {
     margin-bottom: 60px;
