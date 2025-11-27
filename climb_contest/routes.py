@@ -252,9 +252,11 @@ def register_success():
 @main.route('/api/v2/contest/ranking_by_categories', methods=['GET'])
 def get_ranking_by_categories():
     try:
+        print("Computing ranking_by_categories...")
         ranking = {}
         # Récupère tous les rankings depuis la table Ranking
         all_rankings = handler.get_rankings()
+        print(f"Total ranking entries retrieved: {len(all_rankings)}")
         
         # Structure les résultats par catégorie
         for rank_entry in all_rankings:
@@ -264,6 +266,8 @@ def get_ranking_by_categories():
             
             # Utilise la méthode to_dict() définie dans le modèle Ranking
             ranking[category].append(rank_entry.to_dict())
+        print("Ranking by categories computed successfully.")
+        print(f'ranking: {ranking}')
 
         return jsonify(ranking), 200
 
