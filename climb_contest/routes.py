@@ -267,7 +267,6 @@ def get_ranking_by_categories():
             # Utilise la méthode to_dict() définie dans le modèle Ranking
             ranking[category].append(rank_entry.to_dict())
         print("Ranking by categories computed successfully.")
-        print(f'ranking: {ranking}')
 
         return jsonify(ranking), 200
 

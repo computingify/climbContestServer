@@ -10,7 +10,7 @@ class Processor(threading.Thread):
         self.daemon = True # Le thread se termine lorsque le programme principal se termine
         self.app = app
         self._stop_event = threading.Event()
-        self.ranking_update_needed_flag = False
+        self.ranking_update_needed_flag = True
         
     def ranking_update_needed(self, needed=True):
         self.ranking_update_needed_flag = needed
