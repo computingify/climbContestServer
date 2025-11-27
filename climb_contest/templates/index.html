@@ -2,33 +2,84 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>ClimbContest - Enregistrement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juge - ClimbContest</title>
+    
+    <!-- Fonts identiques à la page Results -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome pour les icônes (optionnel mais recommandé) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="/static/index.css">
+    
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
-    <h1>ClimbContest - Enregistrement</h1>
+<div id="app" v-cloak>
+    <header>
+        <h1>Juge - Validation</h1>
+    </header>
 
-    <div class="section">
-        <label for="climberInput">Bib du grimpeur :</label>
-        <input type="text" id="climberInput" placeholder="Scan ou saisie du bib">
-        <button onclick="checkClimber()">Vérifier grimpeur</button>
-        <div id="climberError" class="error"></div>
+    <div class="container">
+        <!-- Bouton Grimpeur -->
+        <button 
+            class="action-btn" 
+            :class="climberStatusClass" 
+            @click="startScan('climber')"
+        >
+            <i class="fas fa-user-astronaut"></i>
+            <span class="btn-label">[[ climberLabel ]]</span>
+            <span v-if="savedClimberBib" class="btn-subtext">Bib: [[ savedClimberBib ]]</span>
+        </button>
+
+        <!-- Bouton Bloc -->
+        <button 
+            class="action-btn" 
+            :class="blocStatusClass" 
+            @click="startScan('bloc')"
+        >
+            <i class="fas fa-cube"></i>
+            <span class="btn-label">[[ blocLabel ]]</span>
+            <span v-if="savedBlocTag" class="btn-subtext">Tag: [[ savedBlocTag ]]</span>
+        </button>
+
+        <!-- Bouton Valider -->
+        <button 
+            class="action-btn validate-btn" 
+            :class="validateStatusClass" 
+            @click="sendSuccess"
+            :disabled="!canValidate"
+        >
+            <i class="fas fa-check-circle"></i>
+            <span>Valider l'essai</span>
+        </button>
+
+        <!-- Bouton Reset -->
+        <button 
+            class="reset-btn" 
+            @click="resetAll"
+        >
+            <i class="fas fa-undo"></i> Réinitialiser
+        </button>
+
+        <!-- Message d'erreur global -->
+        <div v-if="globalError" class="global-error">
+            [[ globalError ]]
+        </div>
     </div>
 
-    <div class="section">
-        <label for="blocInput">Tag du bloc :</label>
-        <input type="text" id="blocInput" placeholder="Scan ou saisie du tag">
-        <button onclick="checkBloc()">Vérifier bloc</button>
-        <div id="blocError" class="error"></div>
+    <!-- Overlay du Scanner Plein Écran -->
+    <div v-if="qrVisible" class="scanner-overlay">
+        <div class="scanner-header">
+            <h2>Scan [[ scanTarget === 'climber' ? 'Grimpeur' : 'Bloc' ]]</h2>
+            <button @click="stopScan" class="close-scan">Fermer</button>
+        </div>
+        <div id="qr-reader"></div>
+        <div class="scanner-instructions">Visez le QR Code</div>
     </div>
+</div>
 
-    <div class="section">
-        <button onclick="sendSuccess()">Enregistrer réussite</button>
-        <button onclick="resetAll()">Réinitialiser</button>
-        <div id="successError" class="error"></div>
-    </div>
-
-    <script src="/static/index.js"></script>
+<script src="/static/index.js"></script>
 </body>
 </html>

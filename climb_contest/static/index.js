@@ -1,172 +1,192 @@
-let savedClimberBib = null;
-let savedBlocTag = null;
+const { createApp } = Vue;
 
-function checkClimber() {
-    // Ouvre la caméra et scanne le QRCode pour le grimpeur
-    startQrScanAndSend('climberInput', '/api/v2/contest/climber/name', (success, message, value) => {
-        if (success) {
-            savedClimberBib = value;
-        } else {
-            savedClimberBib = null;
-            document.getElementById('climberError').textContent = message || 'Erreur inconnue';
-        }
-    });
-}
-
-function checkBloc() {
-    // Ouvre la caméra et scanne le QRCode pour le bloc
-    startQrScanAndSend('blocInput', '/api/v2/contest/bloc/name', (success, message, value) => {
-        if (success) {
-            savedBlocTag = value;
-        } else {
-            savedBlocTag = null;
-            document.getElementById('blocError').textContent = message || 'Erreur inconnue';
-        }
-    });
-}
-
-// Fonction qui ouvre la caméra, scanne le QRCode, puis envoie la donnée à l'API
-function startQrScanAndSend(targetInputId, apiUrl, callback) {
-    currentScanTarget = targetInputId;
-    const qrRegion = document.getElementById('qr-region');
-    qrRegion.style.display = 'block';
-
-    if (!qrScanner) {
-        qrScanner = new Html5Qrcode("qr-reader");
-    }
-    qrScanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: 250
+createApp({
+    // Utilisation de [[ ]] pour ne pas entrer en conflit avec Flask Jinja2 si besoin
+    compilerOptions: {
+        delimiters: ['[[', ']]']
+    },
+    data() {
+        return {
+            // climber & bloc states: 'default', 'success', 'error'
+            climberState: 'default', 
+            blocState: 'default',
+            validateState: 'default',
+            
+            savedClimberBib: null,
+            savedBlocTag: null,
+            
+            globalError: "",
+            
+            // Scanner logic
+            qrVisible: false,
+            scanTarget: null, // 'climber' ou 'bloc'
+            html5QrcodeScanner: null
+        };
+    },
+    computed: {
+        climberStatusClass() {
+            return `status-${this.climberState}`;
         },
-        qrCodeMessage => {
-            document.getElementById(targetInputId).value = qrCodeMessage;
-            stopQrScan();
-            // Envoie la donnée scannée à l'API correspondante
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({id: qrCodeMessage})
-            })
-            .then(res => res.json().then(data => ({status: res.status, body: data})))
-            .then(({status, body}) => {
-                if (body.success) {
-                    callback(true, null, qrCodeMessage);
-                } else {
-                    callback(false, body.message, null);
-                }
-            })
-            .catch(() => {
-                callback(false, 'Erreur réseau', null);
+        blocStatusClass() {
+            return `status-${this.blocState}`;
+        },
+        validateStatusClass() {
+            return `status-${this.validateState}`;
+        },
+        climberLabel() {
+            if (this.climberState === 'success') return "Grimpeur OK";
+            if (this.climberState === 'error') return "Inconnu";
+            return "Scanner Grimpeur";
+        },
+        blocLabel() {
+            if (this.blocState === 'success') return "Bloc OK";
+            if (this.blocState === 'error') return "Inconnu";
+            return "Scanner Bloc";
+        },
+        canValidate() {
+            // Le bouton valider n'est cliquable que si on a les deux infos valides
+            return (this.climberState === 'success' && this.blocState === 'success' && this.validateState !== 'success');
+        }
+    },
+    methods: {
+        // --- API Helper ---
+        async apiPost(url, body) {
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (err) {
+                console.error(err);
+                return { success: false, message: "Erreur de connexion serveur" };
+            }
+        },
+
+        // --- Logique Grimpeur ---
+        async verifyClimber(bib) {
+            // Reset état temporaire
+            this.climberState = 'default';
+            
+            const res = await this.apiPost('/api/v2/contest/climber/name', { id: bib });
+            
+            if (res.success) {
+                this.savedClimberBib = bib;
+                this.climberState = 'success';
+                this.globalError = "";
+            } else {
+                this.savedClimberBib = null;
+                this.climberState = 'error';
+                // On peut afficher l'erreur spécifique si besoin
+                // this.globalError = res.message;
+            }
+        },
+
+        // --- Logique Bloc ---
+        async verifyBloc(tag) {
+            this.blocState = 'default';
+            
+            const res = await this.apiPost('/api/v2/contest/bloc/name', { id: tag });
+            
+            if (res.success) {
+                this.savedBlocTag = tag;
+                this.blocState = 'success';
+                this.globalError = "";
+            } else {
+                this.savedBlocTag = null;
+                this.blocState = 'error';
+            }
+        },
+
+        // --- Validation Finale ---
+        async sendSuccess() {
+            if (!this.canValidate) return;
+
+            // Appel API
+            const res = await this.apiPost('/api/v2/contest/success', {
+                bib: this.savedClimberBib,
+                bloc: this.savedBlocTag
+            });
+
+            if (res.success) {
+                // 1. Bouton passe au vert
+                this.validateState = 'success';
+                
+                // 2. Timer de 1.5 secondes
+                setTimeout(() => {
+                    // 3. Reset total
+                    this.resetAll();
+                }, 1500);
+            } else {
+                // Erreur serveur
+                this.validateState = 'error';
+                this.globalError = res.message || "Erreur lors de la validation";
+                
+                // On repasse en gris après un court délai pour permettre de réessayer
+                setTimeout(() => {
+                    this.validateState = 'default';
+                }, 2000);
+            }
+        },
+
+        // --- Reset ---
+        resetAll() {
+            this.climberState = 'default';
+            this.blocState = 'default';
+            this.validateState = 'default';
+            this.savedClimberBib = null;
+            this.savedBlocTag = null;
+            this.globalError = "";
+            this.scanTarget = null;
+        },
+
+        // --- Scanner Logic ---
+        startScan(target) {
+            this.scanTarget = target;
+            this.qrVisible = true;
+            
+            // Attendre que le DOM se mette à jour pour que la div #qr-reader existe
+            this.$nextTick(() => {
+                const html5QrCode = new Html5Qrcode("qr-reader");
+                this.html5QrcodeScanner = html5QrCode;
+
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                
+                // Préférer la caméra arrière (environment)
+                html5QrCode.start({ facingMode: "environment" }, config, this.onScanSuccess)
+                .catch(err => {
+                    this.globalError = "Impossible d'accéder à la caméra.";
+                    this.qrVisible = false;
+                });
             });
         },
-        errorMessage => {
-            // ignore scan errors
-        }
-    ).catch(err => {
-        document.getElementById('qr-error').textContent = "Erreur caméra : " + err;
-    });
-}
 
-function sendSuccess() {
-    document.getElementById('successError').textContent = '';
-    if (!savedClimberBib || !savedBlocTag) {
-        document.getElementById('successError').textContent = 'Veuillez vérifier le grimpeur et le bloc avant.';
-        return;
-    }
-    fetch('/api/v2/contest/success', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({bib: savedClimberBib, bloc: savedBlocTag})
-    })
-    .then(res => res.json().then(data => ({status: res.status, body: data})))
-    .then(({status, body}) => {
-        if (body.success) {
-            savedClimberBib = null;
-            savedBlocTag = null;
-            document.getElementById('climberInput').value = '';
-            document.getElementById('blocInput').value = '';
-        } else {
-            document.getElementById('successError').textContent = body.message || 'Erreur inconnue';
-        }
-    })
-    .catch(() => {
-        document.getElementById('successError').textContent = 'Erreur réseau';
-    });
-}
-
-function resetAll() {
-    savedClimberBib = null;
-    savedBlocTag = null;
-    document.getElementById('climberInput').value = '';
-    document.getElementById('blocInput').value = '';
-    document.getElementById('climberError').textContent = '';
-    document.getElementById('blocError').textContent = '';
-    document.getElementById('successError').textContent = '';
-}
-
-// Ajout du scan QRCode avec html5-qrcode
-let qrScanner = null;
-let currentScanTarget = null;
-
-function startQrScan(targetInputId) {
-    currentScanTarget = targetInputId;
-    const qrRegion = document.getElementById('qr-region');
-    qrRegion.style.display = 'block';
-
-    if (!qrScanner) {
-        qrScanner = new Html5Qrcode("qr-reader");
-    }
-    qrScanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: 250
+        onScanSuccess(decodedText, decodedResult) {
+            // Arrêter le scan
+            this.stopScan().then(() => {
+                // Traiter le résultat
+                if (this.scanTarget === 'climber') {
+                    this.verifyClimber(decodedText);
+                } else if (this.scanTarget === 'bloc') {
+                    this.verifyBloc(decodedText);
+                }
+            });
         },
-        qrCodeMessage => {
-            document.getElementById(targetInputId).value = qrCodeMessage;
-            stopQrScan();
-        },
-        errorMessage => {
-            // ignore scan errors
+
+        async stopScan() {
+            if (this.html5QrcodeScanner) {
+                try {
+                    await this.html5QrcodeScanner.stop();
+                    this.html5QrcodeScanner.clear();
+                } catch (e) {
+                    console.log("Erreur stop scan", e);
+                }
+                this.html5QrcodeScanner = null;
+            }
+            this.qrVisible = false;
+            this.scanTarget = null;
         }
-    ).catch(err => {
-        document.getElementById('qr-error').textContent = "Erreur caméra : " + err;
-    });
-}
-
-function stopQrScan() {
-    if (qrScanner) {
-        qrScanner.stop().then(() => {
-            document.getElementById('qr-region').style.display = 'none';
-            document.getElementById('qr-error').textContent = '';
-        });
     }
-}
-
-// Ajoute les boutons de scan au chargement de la page
-window.addEventListener('DOMContentLoaded', () => {
-    // Ajoute le bouton scan grimpeur
-    const climberScanBtn = document.createElement('button');
-    climberScanBtn.textContent = 'Scanner QR Grimpeur';
-    climberScanBtn.onclick = () => startQrScan('climberInput');
-    document.getElementById('climberInput').parentNode.appendChild(climberScanBtn);
-
-    // Ajoute le bouton scan bloc
-    const blocScanBtn = document.createElement('button');
-    blocScanBtn.textContent = 'Scanner QR Bloc';
-    blocScanBtn.onclick = () => startQrScan('blocInput');
-    document.getElementById('blocInput').parentNode.appendChild(blocScanBtn);
-
-    // Ajoute la région d'affichage du scanner
-    const qrRegion = document.createElement('div');
-    qrRegion.id = 'qr-region';
-    qrRegion.style.display = 'none';
-    qrRegion.innerHTML = `
-        <div id="qr-reader" style="width:300px"></div>
-        <div id="qr-error" class="error"></div>
-        <button onclick="stopQrScan()">Fermer le scan</button>
-    `;
-    document.body.appendChild(qrRegion);
-});
+}).mount('#app');
