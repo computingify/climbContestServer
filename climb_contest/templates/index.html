@@ -7,7 +7,7 @@
     
     <!-- Fonts identiques à la page Results -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome pour les icônes (optionnel mais recommandé) -->
+    <!-- FontAwesome pour les icônes (recommandé pour l'UX mobile) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="/static/index.css">
@@ -19,10 +19,14 @@
 <div id="app" v-cloak>
     <header>
         <h1>Juge - Validation</h1>
+        <!-- Bouton Résultats ajouté en haut à droite -->
+        <a href="/results.html" class="results-btn" title="Voir les résultats">
+            <i class="fas fa-poll"></i> Résultats
+        </a>
     </header>
 
     <div class="container">
-        <!-- Bouton Grimpeur -->
+        <!-- Bouton Grimpeur (Scan/Vérification) -->
         <button 
             class="action-btn" 
             :class="climberStatusClass" 
@@ -33,7 +37,7 @@
             <span v-if="savedClimberBib" class="btn-subtext">Bib: [[ savedClimberBib ]]</span>
         </button>
 
-        <!-- Bouton Bloc -->
+        <!-- Bouton Bloc (Scan/Vérification) -->
         <button 
             class="action-btn" 
             :class="blocStatusClass" 
@@ -44,7 +48,7 @@
             <span v-if="savedBlocTag" class="btn-subtext">Tag: [[ savedBlocTag ]]</span>
         </button>
 
-        <!-- Bouton Valider -->
+        <!-- Bouton Valider (Soumission) -->
         <button 
             class="action-btn validate-btn" 
             :class="validateStatusClass" 
@@ -75,6 +79,7 @@
             <h2>Scan [[ scanTarget === 'climber' ? 'Grimpeur' : 'Bloc' ]]</h2>
             <button @click="stopScan" class="close-scan">Fermer</button>
         </div>
+        <!-- Le lecteur QR code s'affiche ici -->
         <div id="qr-reader"></div>
         <div class="scanner-instructions">Visez le QR Code</div>
     </div>

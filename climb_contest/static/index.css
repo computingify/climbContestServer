@@ -32,14 +32,47 @@ body {
     align-items: center;
 }
 
+header {
+    width: 100%;
+    position: relative; /* Important pour positionner le bouton à l'intérieur */
+    display: flex;
+    justify-content: center; /* Centrer le titre */
+    align-items: center;
+    margin-bottom: 30px;
+}
+
 header h1 {
     font-family: var(--font-heading);
     color: var(--accent);
     text-transform: uppercase;
     font-size: 1.8rem;
-    margin-bottom: 30px;
+    margin: 0;
     text-align: center;
 }
+
+/* --- STYLE: Bouton Résultats (Haut Droite) --- */
+.results-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--accent);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.results-btn:hover {
+    background-color: #d35400; /* Orange plus foncé au survol */
+}
+/* --- FIN STYLE Bouton Résultats --- */
+
 
 .container {
     width: 100%;
