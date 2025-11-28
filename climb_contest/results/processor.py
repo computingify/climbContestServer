@@ -4,16 +4,20 @@ from datetime import datetime
 from climb_contest.models import MAX_BLOC_VALUE, Success, Climber, Bloc, climber_category_bloc, db, Ranking
 
 class Processor(threading.Thread):
+    _SLEEP_TIME = 30 
     
     def __init__(self, app):
         super().__init__()
         self.daemon = True # Le thread se termine lorsque le programme principal se termine
         self.app = app
         self._stop_event = threading.Event()
-        self.ranking_update_needed_flag = True
+        # Event to trigger manual update
+        self.manual_update_event = threading.Event()
         
-    def ranking_update_needed(self, needed=True):
-        self.ranking_update_needed_flag = needed
+    def ranking_update_needed(self):
+        """Signal that a ranking update is needed."""
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Signal de mise à jour reçu.")
+        self.manual_update_event.set()
     
     def run(self):
         while not self._stop_event.is_set():
@@ -25,10 +29,12 @@ class Processor(threading.Thread):
                 try:
                     self._calculate_and_store_ranking()
                 except Exception as e:
+                    db.session.rollback()
                     print(f"[{datetime.now().strftime('%H:%M:%S')}] ERREUR lors du calcul/stockage du classement : {e}")
             
             # Attend 15 secondes avant la prochaine exécution
-            self._stop_event.wait(30)
+            self.manual_update_event.clear() 
+            self.manual_update_event.wait(self._SLEEP_TIME)
     
     def _calculate_and_store_ranking(self):
         """Récupère toutes les catégories, calcule et stocke le classement."""

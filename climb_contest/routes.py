@@ -234,9 +234,6 @@ def register_success():
         
         handler.add_success(climber, bloc)
         
-        # Inform the processor that a ranking update is needed
-        current_app.processor.ranking_update_needed()
-        
         return jsonify({
             'success': True,
             'message': 'Well done'
@@ -254,7 +251,6 @@ def get_ranking_by_categories():
     try:
         print("Computing ranking_by_categories...")
         ranking = {}
-        current_app.processor.run()
         # Récupère tous les rankings depuis la table Ranking
         all_rankings = handler.get_rankings()
         print(f"Total ranking entries retrieved: {len(all_rankings)}")
