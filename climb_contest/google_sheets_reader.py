@@ -1,3 +1,4 @@
+from sqlalchemy.dialects.postgresql import insert
 from climb_contest.models import Climber, Bloc, climber_category_bloc
 
 def populate_bloc(google_sheet, db):
@@ -34,7 +35,6 @@ def populate_bloc(google_sheet, db):
                     if not bloc:
                         bloc = Bloc(tag=qr_code, number=bloc_id)
                         db.session.add(bloc)
-                        db.session.commit()
                         
                     # Handle climber_category_bloc association table creation
                     for idx in range(5, 14):
@@ -42,8 +42,17 @@ def populate_bloc(google_sheet, db):
                         if is_associated_to_category:
                             category = categories[idx]
                             if category:
-                                db.session.execute(climber_category_bloc.insert().values(category=category + " F", bloc_id=bloc.id))
-                                db.session.execute(climber_category_bloc.insert().values(category=category + " H", bloc_id=bloc.id))
+                                # 1. Définir les valeurs pour Filles (F)
+                                insert_f = insert(climber_category_bloc).values(category=category + " F", bloc_id=bloc_id)
+                                # 2. Appliquer ON CONFLICT DO NOTHING
+                                on_conflict_f = insert_f.on_conflict_do_nothing(index_elements=[climber_category_bloc.c.category, climber_category_bloc.c.bloc_id])
+                                db.session.execute(on_conflict_f)
+
+                                # 3. Définir les valeurs pour Garçons (H)
+                                insert_h = insert(climber_category_bloc).values(category=category + " H", bloc_id=bloc_id)
+                                # 4. Appliquer ON CONFLICT DO NOTHING
+                                on_conflict_h = insert_h.on_conflict_do_nothing(index_elements=[climber_category_bloc.c.category, climber_category_bloc.c.bloc_id])
+                                db.session.execute(on_conflict_h)
                 else:
                     print(f'Error in googleSheet extraction data of qr_code = {qr_code} | bloc_id = {bloc_id}')
                 
