@@ -254,6 +254,7 @@ def get_ranking_by_categories():
     try:
         print("Computing ranking_by_categories...")
         ranking = {}
+        current_app.processor.run()
         # Récupère tous les rankings depuis la table Ranking
         all_rankings = handler.get_rankings()
         print(f"Total ranking entries retrieved: {len(all_rankings)}")
