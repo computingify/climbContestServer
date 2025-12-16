@@ -9,7 +9,8 @@ from io import BytesIO
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # SPREADSHEET_ID = '1lOWe3j-4KG62wcKCsBd7T0Yj4iduFzH5QB76wS7dc9M' # 2024 edition
-SPREADSHEET_ID = '1ilQ2-ogmTfpgYa_oz4ogO9SN_jJvSTL9BogcmHxHtEo' # U11 U17 Nov 2025 edition ON Annony Escalade drive
+# SPREADSHEET_ID = '1ilQ2-ogmTfpgYa_oz4ogO9SN_jJvSTL9BogcmHxHtEo' # U11 U17 Nov 2025 edition ON Annony Escalade drive
+SPREADSHEET_ID = '1h3e8QUSXnCJLSYSFyB8X92cppDubeDx0yi8mn3NSh5s' # Dec 2025
 IMPORT = 'Import'
 
 class GoogleSheet:
