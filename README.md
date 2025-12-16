@@ -92,6 +92,9 @@ sudo journalctl -fu climb_contest_server_app.service
 Store the token into base64 to use it on deployment server:
 base64 -i token.pickle | pbcopy
 
+# Render launch command
+gunicorn -c gunicorn_config.py wsgi:app --capture-output --enable-stdio-inheritance --access-logfile - --error-logfile -
+
 # Googlesheet access
 ## 1st possibility
 To be able to use the google sheet, the only way I find is to copy the Etienne's google sheet in ADN-Dev one. By the way, I can access to it in write mode.
